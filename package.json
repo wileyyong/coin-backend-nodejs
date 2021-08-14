@@ -1,0 +1,38 @@
+{
+  "name": "PUML-nft-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PUMLLabs/PUML-nft-backend.git"
+  },
+  "author": "CHROM (PUML)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PUMLLabs/PUML-nft-backend/issues"
+  },
+  "homepage": "https://github.com/PUMLLabs/PUML-nft-backend#readme",
+  "dependencies": {
+    "@truffle/hdwallet-provider": "^1.4.1",
+    "colors": "^1.4.0",
+    "config": "^3.3.6",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-fileupload": "^1.2.1",
+    "htmlspecialchars": "^1.0.5",
+    "jsonwebtoken": "^8.5.1",
+    "moment": "^2.29.1",
+    "mongoose": "^5.12.7",
+    "multer": "^1.4.2",
+    "node-cron": "^3.0.0",
+    "swagger-jsdoc": "^6.1.0",
+    "swagger-ui-express": "^4.1.6",
+    "truffle-contract": "^4.0.31",
+    "web3": "^1.4.0"
+  }
+}
