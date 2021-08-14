@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PUMLLabs/PUML-nft-backend.git"
+    "url": "git+https://github.com/pumlapp/nftapi.git"
   },
   "author": "CHROM (PUML)",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/PUMLLabs/PUML-nft-backend/issues"
+    "url": "https://github.com/pumlapp/nftapi/issues"
   },
-  "homepage": "https://github.com/PUMLLabs/PUML-nft-backend#readme",
+  "homepage": "https://github.com/pumlapp/nftapid#readme",
   "dependencies": {
     "@truffle/hdwallet-provider": "^1.4.1",
     "colors": "^1.4.0",
