@@ -1,6 +1,5 @@
 const Users = require("../models/users");
 const jwt = require("jsonwebtoken");
-const mongoose = require("mongoose");
 const crypto = require("crypto");
 const config = require("config");
 
