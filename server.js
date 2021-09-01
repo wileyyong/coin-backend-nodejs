@@ -1,5 +1,4 @@
 const express = require("express");
-const colors = require("colors");
 const config = require("config");
 const cors = require("cors");
 const cron = require("./cron");
