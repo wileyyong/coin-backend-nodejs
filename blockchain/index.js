@@ -1,6 +1,4 @@
 const Web3 = require('web3');
-const contract = require('truffle-contract');
-const colors = require("colors");
 
 const artifacts_engine = require('./Engine.json');
 const secrets = require('./secrets.json');
