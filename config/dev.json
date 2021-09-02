@@ -1,5 +1,5 @@
 {
-	"api_port": 8080,
+	"api_port": 8000,
 	"mongo_url": "mongodb://localhost/xsigma-nft",
 	"password_hash": "hellofromnft54",
 	"jwt_hash": "thesupermanbynft"
