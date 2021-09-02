@@ -1,8 +1,7 @@
 const mongoose = require("mongoose");
-const config = require("./config");
 
 const connect = () => {
-	return mongoose.connect(config.mongo_url, {
+	return mongoose.connect("mongodb://localhost:27017/PUML", {
 		useCreateIndex: true,
 		useNewUrlParser: true,
 		useUnifiedTopology: true
