@@ -1,6 +1,7 @@
 const Users = require("../models/users");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
+const config = require("../config");
 
 const Controller = {
 	async signIn(req, res) {
@@ -10,12 +11,12 @@ const Controller = {
 			if (!email || !password)
 				return res.status(400).send({error: "Not all fields has filled"});
 
-			password = crypto.createHmac("sha256", "hellofromnft54").update(password).digest("hex");
+			password = crypto.createHmac("sha256", config.password_hash).update(password).digest("hex");
 
 			var user = await Users.findOne({email, password});
 			if (!user) return res.status(404).send({error: "User with this email and password not found"});
 
-			var token = jwt.sign({id: user._id}, "thesupermanbynft");
+			var token = jwt.sign({id: user._id}, config.jwt_hash);
 			res.send({token});
 		}
 		catch(error) {
@@ -31,7 +32,7 @@ const Controller = {
 			if (!email || !name || !password)
 				return res.status(422).send({error: "Not all fields has filled"});
 
-			password = crypto.createHmac("sha256", "hellofromnft54").update(password).digest("hex");
+			password = crypto.createHmac("sha256", config.password_hash).update(password).digest("hex");
 
 			var user_exist = await Users.countDocuments({email});
 			if (user_exist) return res.status(404).send({error: "User already exist"});
@@ -40,7 +41,7 @@ const Controller = {
 				email, name, password
 			});
 
-			var token = jwt.sign({id: user._id}, "thesupermanbynft");
+			var token = jwt.sign({id: user._id}, config.jwt_hash);
 			res.send({token});
 		}
 		catch(error) {
@@ -64,7 +65,7 @@ const Controller = {
 				});
 			}
 			
-			var token = jwt.sign({id: user._id}, "thesupermanbynft");
+			var token = jwt.sign({id: user._id}, config.jwt_hash);
 			res.send({token});
 		}
 		catch(error) {

@@ -1,4 +1,5 @@
 const express = require("express");
+const config = require("./config");
 const cors = require("cors");
 const cron = require("./cron");
 
@@ -14,6 +15,6 @@ app.use(express.json());
 app.use(cors());
 app.use(routes);
 
-app.listen(8000, () => {
-	console.log(`Server started at ${8000}`.cyan);
+app.listen(config.api_port, () => {
+	console.log(`Server started at ${config.api_port}`.cyan);
 });
