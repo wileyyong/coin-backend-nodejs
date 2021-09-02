@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const config = require("../config");
+const config = require("config");
 
 const check = (req, res, next, discard) => {
 	if (req.headers && req.headers.authorization) {

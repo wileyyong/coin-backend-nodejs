@@ -11,7 +11,7 @@
     "type": "git",
     "url": "git+https://github.com/pumlapp/nftapi.git"
   },
-  "author": "CHROM (PUML)",
+  "author": "PUML",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/pumlapp/nftapi/issues"
