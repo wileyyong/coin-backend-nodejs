@@ -1,7 +1,7 @@
 const Users = require("../models/users");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const config = require("./config");
+const config = require("../config");
 
 const Controller = {
 	async signIn(req, res) {
