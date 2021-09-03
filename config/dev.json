@@ -1,6 +1,6 @@
 {
 	"api_port": 8000,
-	"mongo_url": "mongodb://%2Fopt%2Fbitnami%2Fmongodb%2Ftmp%2Fmongodb-27017.sock/",
+	"mongo_url": "mongodb+srv://admin:<bmOSOi4WPr4AtuMK>@cluster0.wz8at.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
 	"password_hash": "hellofromnft54",
 	"jwt_hash": "thesupermanbynft"
 }
