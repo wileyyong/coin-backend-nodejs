@@ -1,6 +1,6 @@
 const express = require("express");
 
-const config = require("config");
+const config = require("./config/dev.json");
 const cors = require("cors");
 const cron = require("./cron");
 
