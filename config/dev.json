@@ -1,6 +1,6 @@
 {
 	"api_port": 8000,
-	"mongo_url": "mongodb+srv://admin:<bmOSOi4WPr4AtuMK>@cluster0.wz8at.mongodb.net/cluster0-shard-00-01.wz8at.mongodb.net:27017?retryWrites=true&w=majority",
+	"mongo_url": "mongodb+srv://admin:bmOSOi4WPr4AtuMK@cluster0.wz8at.mongodb.net/test?retryWrites=true&w=majority",
 	"password_hash": "hellofromnft54",
 	"jwt_hash": "thesupermanbynft"
 }
