@@ -8,7 +8,7 @@ date_future.setHours(0, 0, 0, 0);
 module.exports = {
 	swagger: '2.0',
 	info: {
-		title: "PUMLLab - NFT",
+		title: "PUML - NFT",
 		version: "1.16",
 		description: '',
 	},
