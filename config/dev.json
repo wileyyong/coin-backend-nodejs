@@ -1,6 +1,6 @@
 {
 	"api_port": 8000,
-	"mongo_url": "mongodb+srv://admin:bmOSOi4WPr4AtuMK@cluster0.wz8at.mongodb.net/test?retryWrites=true&w=majority",
+	"mongo_url": "mongodb://localhost:27017/PUML",
 	"password_hash": "hellofromnft54",
 	"jwt_hash": "thesupermanbynft"
 }
