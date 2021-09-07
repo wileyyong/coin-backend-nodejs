@@ -30,7 +30,7 @@ const Users = new mongoose.Schema({
 	link: String,
 	avatar: {
 		type: String,
-		default: "/content/avatar/default.png"
+		default: ""
 	},
 	cover: String,
 	verified: {
