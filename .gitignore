@@ -5,5 +5,5 @@ update.js
 prod.json
 production.json
 
-# content/**
+content/**
 tokens/**
