@@ -1,6 +1,6 @@
 {
 	"api_port": 8080,
-	"mongo_url": "mongodb://localhost:27017/PUML",
+	"mongo_url": "mongodb://%2Fopt%2Fbitnami%2Fmongodb%2Ftmp%2Fmongodb-27017.sock/PUML",
 	"password_hash": "hellofromnft54",
 	"jwt_hash": "thesupermanbynft"
 }
