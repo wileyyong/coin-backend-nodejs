@@ -339,9 +339,6 @@ const Controller = {
 			if (featured_name !== undefined) set.featured_name = featured_name;
 			if (featured_price !== undefined) set.featured_price = featured_price;
 
-			if (!Object.keys(set).length && !req.files)
-				return res.status(422).send({error: "Nothing to update"});
-
 			var update = await Users.updateOne({_id: req.user.id}, set);
 			if (!update || !update.nModified)
 				return res.status(422).send({error: "Nothing was updated"});
