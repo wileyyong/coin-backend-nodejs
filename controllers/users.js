@@ -397,8 +397,8 @@ const Controller = {
 		try {
 			var user_id = req.user.id;
 
-			if (req.files && req.files.image) {
-				var featured = await helpers.uploadFile(req.files.image, req.user.id, "content/cover");
+			if (req.files && req.files.featuredImage) {
+				var featured = await helpers.uploadFile(req.files.featuredImage, req.user.id, "content/cover");
 				var update = await Users.updateOne({_id: user_id}, { $set: {featured} }).exec();
 
 				res.send({message: "Featured Image updated"});
