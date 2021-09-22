@@ -37,6 +37,13 @@ const Users = new mongoose.Schema({
 		type: Boolean,
 		default: false
 	},
+	featured: String,
+	featured_name: String,
+	featured_price: {
+		type: Number,
+		default: 0,
+		select: false
+	},
 	date_create: {
 		type: Date,
 		default: () => Date.now()

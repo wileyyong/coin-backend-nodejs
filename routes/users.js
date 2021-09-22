@@ -8,8 +8,10 @@ const filer = require("../middlewares/filer");
 // router.get("/me", users.getCurrentUser);
 router.get("/settings", tokenizer.tokenAccess, users.getUserSettings);
 router.post("/settings", tokenizer.tokenAccess, filer, users.updateUserSettings);
+router.post("/featured", tokenizer.tokenAccess, filer, users.updateFeatured);
 router.get("/verify", tokenizer.tokenAccess, users.verifyUser);
 router.post("/cover", tokenizer.tokenAccess, filer, users.changeCoverImage);
+router.post("/featuredImage", tokenizer.tokenAccess, filer, users.changeFeaturedImage);
 
 router.post("/search", users.searchUser);
 router.get("/tops/:type", users.getTopUsers);

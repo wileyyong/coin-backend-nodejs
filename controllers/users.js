@@ -331,6 +331,29 @@ const Controller = {
 		}
 	},
 
+	async updateFeatured(req, res) {
+		try {
+			var { featured_name, featured_price } = req.body;
+			var set = {};
+
+			if (featured_name !== undefined) set.featured_name = featured_name;
+			if (featured_price !== undefined) set.featured_price = featured_price;
+
+			if (!Object.keys(set).length && !req.files)
+				return res.status(422).send({error: "Nothing to update"});
+
+			var update = await Users.updateOne({_id: req.user.id}, set);
+			if (!update || !update.nModified)
+				return res.status(422).send({error: "Nothing was updated"});
+			
+			res.send({message: "Featured updated"});
+		}
+		catch(error) {
+			console.log("User update featured error", error);
+			res.status(500).send({error: "Server error"});
+		}
+	},
+
 
 	async verifyUser(req, res) {
 		try {
@@ -373,59 +396,86 @@ const Controller = {
 		}
 	},
 
+	async changeFeaturedImage(req, res) {
+		try {
+			var user_id = req.user.id;
+
+			if (req.files && req.files.image) {
+				var featured_image = await helpers.uploadFile(req.files.image, req.user.id, "content/cover");
+				var update = await Users.updateOne({_id: user_id}, { $set: {featured_image} }).exec();
+
+				res.send({message: "Featured Image updated"});
+			}
+			else {
+				var update = await Users.updateOne({_id: user_id}, {$unset: {featured_image: true}}).exec();
+
+				if (!update || !update.nModified) {
+					return res.status(422).send({error: "Nothing was updated"});
+				}
+
+				res.send({message: "FeaturedImage removed"});
+			}
+		}
+		catch(error) {
+			console.log("User update featuredImage error", error);
+			res.status(500).send({error: "Server error"});
+		}
+	},
+
 
 	async getTopUsers(req, res) {
 		try {
 			var type = req.params.type;
 			var days = req.query.days;
 
-			if (!type || Number(days) == NaN) 
-				return res.status(422).send({error: "Bad params"});
-			
+			if (!["sellers", "buyers"].includes(type))
+				return res.status(422).send({ error: "Bad type of user" });
+
+			if (!type || Number(days) == NaN)
+				return res.status(422).send({ error: "Bad params" });
+
 			if (!days || days > 30)
 				days = 30;
-			
+
 			var query = {};
 			var date = new Date();
 			date.setDate(date.getDate() - days);
 
-			if (!["sellers", "buyers"].includes(type))
-				return res.status(422).send({error: "Bad type of user"});
-
-			query.status = "completed";
-			query.date_sell = {$gte: date};
+			// query.status = "completed";
+			// query.date_create = { $gte: date };
+			query.buyers = {
+				$elemMatch: {
+					date: { $gte: date }
+				}
+			};
 
 			var offers = await Offers.find(query)
-				.populate("creator", "+wallet")
-				.populate("buyer", "+wallet")
+				.populate("creator", "wallet name avatar cover verified")
+				.populate("buyers.user", "wallet name avatar cover verified")
 				.lean();
-			
+
 			var users = [];
 
 			for (var offer of offers) {
-				if (offer.purchase_type == "auction")
-					var price = offer.bids[0].price;
-				if (offer.purchase_type == "direct")
-					var price = offer.offer_price;
+				for (var buyer of offer.buyers) {
+					if (type == "sellers") var user = offer.creator;
+					if (type == "buyers") var user = buyer.user;
 
-				if (type == "sellers")
-					var user = offer.creator;
-				else
-					var user = offer.buyer;
+					var sum = (buyer.price * (buyer.copies || 1));
+					var finded_user = users.find(u => String(u._id) == String(user._id));
 
-				var index = users.findIndex(u => String(u._id) == String(user._id));
-				
-				if (index >= 0) {
-					users[index].amount += price;
-				}
-				else {
-					user.amount = price;
-					users.push(user);
+					if (finded_user) {
+						finded_user.amount += sum;
+					}
+					else {
+						user.amount = sum;
+						users.push(user);
+					}
 				}
 			}
-			
+
 			users.forEach(user => {
-				user.amount = Number(user.amount.toFixed(5));
+				user.amount = Number(user.amount.toFixed(4));
 			});
 
 			users.sort((a, b) => {
@@ -435,11 +485,11 @@ const Controller = {
 			if (users.length > 50)
 				users = users.splice(0, 50);
 
-			res.send({users});
+			res.send({ users });
 		}
-		catch(error) {
+		catch (error) {
 			console.log("Users tops error", error);
-			res.status(500).send({error: "Server error"});
+			res.status(500).send({ error: "Server error" });
 		}
 	},
 
