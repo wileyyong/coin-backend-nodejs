@@ -401,13 +401,13 @@ const Controller = {
 			var user_id = req.user.id;
 
 			if (req.files && req.files.image) {
-				var featured_image = await helpers.uploadFile(req.files.image, req.user.id, "content/cover");
-				var update = await Users.updateOne({_id: user_id}, { $set: {featured_image} }).exec();
+				var featured = await helpers.uploadFile(req.files.image, req.user.id, "content/cover");
+				var update = await Users.updateOne({_id: user_id}, { $set: {featured} }).exec();
 
 				res.send({message: "Featured Image updated"});
 			}
 			else {
-				var update = await Users.updateOne({_id: user_id}, {$unset: {featured_image: true}}).exec();
+				var update = await Users.updateOne({_id: user_id}, {$unset: {featured: true}}).exec();
 
 				if (!update || !update.nModified) {
 					return res.status(422).send({error: "Nothing was updated"});
