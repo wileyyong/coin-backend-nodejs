@@ -114,7 +114,8 @@ const Controller = {
 				name: token.name,
 				description: token.description,
 				attributes: token.attributes,
-				image_url: token.thumbnail || token.media
+				image_url: token.thumbnail || token.media,
+				properties: token.properties
 			});
 		}
 		catch(error) {
