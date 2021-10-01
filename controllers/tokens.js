@@ -125,7 +125,7 @@ const Controller = {
 
 
 	async createToken(req, res) {
-		var { name, description, collection, categories, royalties, locked, offchain } = helpers.parseFormData(req.body);
+		var { name, description, properties, collection, categories, royalties, locked, offchain } = helpers.parseFormData(req.body);
 
 		var token_id = mongoose.Types.ObjectId();
 
@@ -153,6 +153,7 @@ const Controller = {
 
 			if (locked) token_data.locked = locked;
 			if (description) token_data.description = description;
+			if (properties) token_data.properties = properties;
 			if (collection && !helpers.isNot(collection)) token_data.collections = collection;
 
 			var token = await Tokens.create(token_data);
