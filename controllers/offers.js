@@ -173,8 +173,11 @@ const Controller = {
 						populate: ["owners.user", "collections", "categories"]
 					})
 					.lean();
-
 				helpers.calcLikesArray(offers, req.user);
+
+				if (name) {
+					offers.filter(auction => auction.token.name.includes(name));
+				}
 				
 				if (sort_type == "costly") {
 					offers.sort((a, b) => {
@@ -195,11 +198,6 @@ const Controller = {
 				if (sort_type == "liked") {
 					offers.sort((a, b) => {
 						return b.token.likes - a.token.likes;
-					});
-				}
-				if (name) {
-					offers.filter((auction) => {
-						return auction.token.name.includes(name);
 					});
 				}
 					
