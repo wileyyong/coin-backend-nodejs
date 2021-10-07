@@ -175,15 +175,7 @@ const Controller = {
 				helpers.calcLikesArray(offers, req.user);
 
 				if (name) {
-					var newOffers = [];
-					for (let i = 0; i < offers.length > 0; i++) {
-						var offer1 = offers[i];
-						if (offer1.token.name.includes(name)) {
-							newOffers.push(offer);
-						}
-					}
-					console.log(newOffers);
-					offers = newOffers;
+					offers = offers.filter(auction => auction.token.name.includes(name));
 				}
 				
 				if (sort_type == "costly") {
