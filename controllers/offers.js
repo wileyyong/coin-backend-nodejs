@@ -177,8 +177,8 @@ const Controller = {
 				if (name) {
 					var newOffers = [];
 					for (let i = 0; i < offers.length > 0; i++) {
-						var offer = offers[i];
-						if (offer.token.name.includes(name)) {
+						var offer1 = offers[i];
+						if (offer1.token.name.includes(name)) {
 							newOffers.push(offer);
 						}
 					}
