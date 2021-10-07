@@ -175,7 +175,7 @@ const Controller = {
 				helpers.calcLikesArray(offers, req.user);
 
 				if (name) {
-					offers = offers.filter(auction => auction.token.name.includes(name));
+					offers = offers.filter(auction => auction.token.name.includes(name.toLowerCase()));
 				}
 				
 				if (sort_type == "costly") {
