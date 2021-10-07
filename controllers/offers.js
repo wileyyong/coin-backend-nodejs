@@ -88,6 +88,7 @@ const Controller = {
 		try {
 			var type = req.params.type;
 			var current_date = Date.now();
+			var name = req.params.name || '';
 
 			if (mongoose.Types.ObjectId.isValid(type)) {
 				var offer = await Offers.findOne({_id: type})
@@ -194,6 +195,11 @@ const Controller = {
 				if (sort_type == "liked") {
 					offers.sort((a, b) => {
 						return b.token.likes - a.token.likes;
+					});
+				}
+				if (name) {
+					offers.filter((auction) => {
+						return auction.token.name.includes(name);
 					});
 				}
 					
