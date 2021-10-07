@@ -88,7 +88,6 @@ const Controller = {
 		try {
 			var type = req.params.type;
 			var current_date = Date.now();
-			var name = req.params.name || '';
 
 			if (mongoose.Types.ObjectId.isValid(type)) {
 				var offer = await Offers.findOne({_id: type})
@@ -117,7 +116,7 @@ const Controller = {
 				res.send({offer, history});
 			}
 			else {
-				var { category } = req.query;
+				var { category, name } = req.query;
 				var query = {};
 				var sort = {};
 				var sort_type = req.query.sort;
