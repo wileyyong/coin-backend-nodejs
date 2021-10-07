@@ -176,8 +176,8 @@ const Controller = {
 
 				if (name) {
 					offers.filter(auction => auction.token.name.includes(name));
+					console.log(offers);
 				}
-				console.log(name, offers);
 				
 				if (sort_type == "costly") {
 					offers.sort((a, b) => {
