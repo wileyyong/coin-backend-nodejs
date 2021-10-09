@@ -50,7 +50,7 @@ const Controller = {
 
   async getFeatured(req, res) {
     try {
-      var featuredNFT = await Featured.findOne({created_by: 'admin'}).lean();
+      var featuredNFT = await Featured.findOne().lean();
       if (!featuredNFT) 
 				return res.status(404).send({error: "Token not found"});
       res.send(featuredNFT);
