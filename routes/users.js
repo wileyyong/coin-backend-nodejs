@@ -1,6 +1,7 @@
 const express = require("express");
 
 const users = require("../controllers/users");
+const featured = require("../controllers/featured");
 const router = express.Router();
 const tokenizer = require("../middlewares/tokenizer");
 const filer = require("../middlewares/filer");
@@ -8,10 +9,10 @@ const filer = require("../middlewares/filer");
 // router.get("/me", users.getCurrentUser);
 router.get("/settings", tokenizer.tokenAccess, users.getUserSettings);
 router.post("/settings", tokenizer.tokenAccess, filer, users.updateUserSettings);
-router.post("/featured", tokenizer.tokenAccess, filer, users.updateFeatured);
+router.post("/featured", tokenizer.tokenAccess, filer, featured.updateFeatured);
 router.get("/verify", tokenizer.tokenAccess, users.verifyUser);
 router.post("/cover", tokenizer.tokenAccess, filer, users.changeCoverImage);
-router.post("/featuredImage", tokenizer.tokenAccess, filer, users.changeFeaturedImage);
+router.post("/featuredImage", tokenizer.tokenAccess, filer, featured.changeFeaturedImage);
 
 router.post("/search", users.searchUser);
 router.get("/tops/:type", users.getTopUsers);

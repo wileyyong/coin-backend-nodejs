@@ -331,27 +331,6 @@ const Controller = {
 		}
 	},
 
-	async updateFeatured(req, res) {
-		try {
-			var { featured_name, featured_price } = req.body;
-			var set = {};
-
-			if (featured_name !== undefined) set.featured_name = featured_name;
-			if (featured_price !== undefined) set.featured_price = featured_price;
-
-			var update = await Users.updateOne({_id: req.user.id}, set);
-			if (!update || !update.nModified)
-				return res.status(422).send({error: "Nothing was updated"});
-			
-			res.send({message: "Featured updated"});
-		}
-		catch(error) {
-			console.log("User update featured error", error);
-			res.status(500).send({error: "Server error"});
-		}
-	},
-
-
 	async verifyUser(req, res) {
 		try {
 			var update = await Users.updateOne({_id: req.user.id}, {verified: true});
@@ -392,33 +371,6 @@ const Controller = {
 			res.status(500).send({error: "Server error"});
 		}
 	},
-
-	async changeFeaturedImage(req, res) {
-		try {
-			var user_id = req.user.id;
-
-			if (req.files && req.files.featuredImage) {
-				var featured = await helpers.uploadFile(req.files.featuredImage, req.user.id, "content/cover");
-				var update = await Users.updateOne({_id: user_id}, { $set: {featured} }).exec();
-
-				res.send({message: "Featured Image updated"});
-			}
-			else {
-				var update = await Users.updateOne({_id: user_id}, {$unset: {featured: true}}).exec();
-
-				if (!update || !update.nModified) {
-					return res.status(422).send({error: "Nothing was updated"});
-				}
-
-				res.send({message: "FeaturedImage removed"});
-			}
-		}
-		catch(error) {
-			console.log("User update featuredImage error", error);
-			res.status(500).send({error: "Server error"});
-		}
-	},
-
 
 	async getTopUsers(req, res) {
 		try {
