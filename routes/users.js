@@ -7,6 +7,7 @@ const tokenizer = require("../middlewares/tokenizer");
 const filer = require("../middlewares/filer");
 
 // router.get("/me", users.getCurrentUser);
+router.get("/featured", tokenizer.tokenAccess, featured.getFeatured);
 router.get("/settings", tokenizer.tokenAccess, users.getUserSettings);
 router.post("/settings", tokenizer.tokenAccess, filer, users.updateUserSettings);
 router.post("/featured", tokenizer.tokenAccess, filer, featured.updateFeatured);
