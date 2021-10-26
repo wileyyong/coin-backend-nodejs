@@ -1,7 +1,7 @@
 const express = require("express");
 
-const users = require("../controllers/users");
-const featured = require("../controllers/featured");
+const users = require("../controllers/mysql/users");
+const featured = require("../controllers/mysql/featured");
 const router = express.Router();
 const tokenizer = require("../middlewares/tokenizer");
 const filer = require("../middlewares/filer");

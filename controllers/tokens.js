@@ -178,7 +178,7 @@ const Controller = {
 		try {
 			var token_id = req.params.id;
 			var chain_id = req.body.chain_id;
-
+			console.log('chain_id: ', chain_id);
 			if (!token_id || !chain_id) 
 				return res.status(422).send({error: "Not all fields has filled"});
 

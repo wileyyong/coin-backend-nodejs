@@ -1,0 +1,9 @@
+{
+    "ENDPOINT": "pumlbridgenft.cetqlxaxukjv.ap-southeast-2.rds.amazonaws.com",
+    "DATABASE": "pumlnftproduction",
+    "USERNAME": "admin",
+    "PASSWORD": "52!=p5etlsqzm",
+    "PORT": 3306,
+    "PASSWORD_HASH": "hellofromnft54",
+	"JWT_HASH": "thesupermanbynft"
+}

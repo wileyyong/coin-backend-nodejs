@@ -1,10 +1,9 @@
 const cron = require("node-cron");
-const Tokens = require("./models/tokens");
-const Offers = require("./models/offers");
-const Activities = require("./models/activities");
+const { Tokens, Offers, Activities, } = require('./models/mysql/sequelizer');
 const offers_controller = require("./controllers/mysql/offers");
 
 const blockchain = require("./blockchain");
+const { Op } = require("sequelize");
 
 
 const start = () => {
@@ -20,24 +19,29 @@ const start = () => {
 
 
 const closeExpiredOffers = async () => {
-	var offers = await Offers.find({ 
-		status: "pending", 
-		date_end: { $lte: new Date() }, 
-		type: {$in: ["both", "auction"]} 
+	var offers = await Offers.findAll({
+		where: { 
+			status: "pending", 
+			date_end: { 
+				[Op.lte]: new Date() 
+			}, 
+			type: ["both", "auction"]
+		} 
 	});
 	
 	if (!offers && !offers.length)
 		return false;
 	
 	for (var offer of offers) {
-		if (offer.bids.length) {
-			var user_info = offer.bids[0];
-
+		var bids = JSON.parse(bids);
+		if (bids.length) {
+			var user_info = bids[0];
+			
 			await Activities.create({
 				type: "purchased",
-				offer: offer._id,
-				token: offer.token,
-				user: user_info.user,
+				offerId: offer._id,
+				tokenId: offer.token,
+				userId: user_info.user,
 				price: user_info.price
 			});
 
@@ -45,12 +49,13 @@ const closeExpiredOffers = async () => {
 			offer.status = "completed";
 			offer.purchase_type = "auction";
 			
-			var token = await Tokens.findOne({_id: offer.token});
+			var token = await Tokens.findOne({
+				where: {id: offer.token}
+			});
 			token.owners.unshift({
 				user: user_info.user,
 				price: user_info.price
 			});
-
 			await token.save();
 			await blockchain.auctionSetWinner(token.chain_id);
 			await offers_controller.giveRoyalties(offer, token);
@@ -61,7 +66,12 @@ const closeExpiredOffers = async () => {
 			console.log(`Auction ${offer._id} has expired`.red);
 		}
 
-		await offer.save();
+		await Offers.update(
+			offer,
+			{
+				where: {id: offer.id}
+			}
+		);
 	}
 };
 

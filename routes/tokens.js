@@ -1,7 +1,7 @@
 const express = require("express");
 const path = require("path");
 
-const tokens = require("../controllers/tokens");
+const tokens = require("../controllers/mysql/tokens");
 const tokenizer = require("../middlewares/tokenizer");
 const filer = require("../middlewares/filer");
 const router = express.Router();

@@ -1,7 +1,7 @@
 const express = require("express");
 
 const tokenizer = require("../middlewares/tokenizer");
-const offers = require("../controllers/offers");
+const offers = require("../controllers/mysql/offers");
 const router = express.Router();
 
 router.get("/", (req, res) => res.redirect("/offers/explore"));

@@ -1,6 +1,6 @@
 const express = require("express");
 
-const collections = require("../controllers/collections");
+const collections = require("../controllers/mysql/collections");
 const tokenizer = require("../middlewares/tokenizer");
 const router = express.Router();
 const filer = require("../middlewares/filer");

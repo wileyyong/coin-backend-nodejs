@@ -418,7 +418,7 @@ const Controller = {
 			var price = offer.bids[0].price;
 		}
 
-		var user = await Users.findOne({_id: token.creator}, "royalties");
+		var user = await users.find({_id: token.creator}, "royalties");
 
 		var sum = price * (token.royalties / 100);
 		var new_royalties = Number( (user.royalties + sum).toFixed(5) );
