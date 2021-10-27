@@ -399,7 +399,6 @@ const Controller = {
 
 	
 	async toggleLike(req, res) {
-		console.log('toggleLike');
 		try {
 			var token_id = req.params.id;
 
@@ -408,10 +407,7 @@ const Controller = {
 
 			var token = await Tokens.findOne({
 				where: {
-					_id: token_id,
-					chain_id: {
-						[Op.not]: null
-					}
+					_id: token_id
 				}
 			});
 
@@ -424,8 +420,8 @@ const Controller = {
 			var mode = req.path.split("/").pop();
 
 			var set = {};
-			if (mode == "like") set = {likes: [...likes, req.user.id]};
-			if (mode == "unlike") set = {likes: likes.filter((id) => id != req.user.id)};
+			if (mode == "like") set = {likes: token.likes.push(req.user.id)};
+			if (mode == "unlike") set = {likes: token.likes.filter((id) => id != req.user.id)};
 
 			var update = await Tokens.updateOne(
 				set, 
