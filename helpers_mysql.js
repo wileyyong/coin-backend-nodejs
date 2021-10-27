@@ -69,10 +69,10 @@ const calcLikes = (item, user_id) => {
 		return item;
 	}
 
-	if (item.likes) {
-		user_id ? item.liked = !!item.likes.find(i => String(i) == user_id) : item.liked = false;
-		item.likes = item.likes.length;
-	}
+	// if (item.likes && item.likes.length > 0) {
+	// 	user_id ? item.liked = !!item.likes.find(i => String(i) == user_id) : item.liked = false;
+	// 	item.likes = item.likes.length;
+	// }
 	else {
 		item.liked = false;
 		item.likes = 0;
