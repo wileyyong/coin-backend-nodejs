@@ -421,7 +421,8 @@ const Controller = {
 
 			var set = {};
 			let likes = token.likes || [];
-			if (mode == "like") set = {likes: likes.push(req.user.id)};
+
+			if (mode == "like") set = {likes: [...likes, req.user.id]};
 			if (mode == "unlike") set = {likes: likes.length > 0 ? likes.filter((id) => id != req.user.id) : []};
 
 			var update = await Tokens.update(
