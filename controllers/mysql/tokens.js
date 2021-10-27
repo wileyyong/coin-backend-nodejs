@@ -420,10 +420,11 @@ const Controller = {
 			var mode = req.path.split("/").pop();
 
 			var set = {};
-			if (mode == "like") set = {likes: token.likes.push(req.user.id)};
-			if (mode == "unlike") set = {likes: token.likes.filter((id) => id != req.user.id)};
+			let likes = token.likes || [];
+			if (mode == "like") set = {likes: likes.push(req.user.id)};
+			if (mode == "unlike") set = {likes: likes.length > 0 ? likes.filter((id) => id != req.user.id) : []};
 
-			var update = await Tokens.updateOne(
+			var update = await Tokens.update(
 				set, 
 				{
 					where: {_id: token_id}
@@ -441,10 +442,12 @@ const Controller = {
 				});
 			}
 			if (mode == "unlike") {
-				await Activities.deleteOne({
-					type: "unliked",
-					userId: req.user.id,
-					tokenId: token_id
+				await Activities.destroy({
+					where: {
+						type: "unliked",
+						userId: req.user.id,
+						tokenId: token_id
+					}
 				});
 			}
 
