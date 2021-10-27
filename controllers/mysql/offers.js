@@ -170,6 +170,7 @@ const Controller = {
 				res.send({offer, history});
 			} else {
 				var { category, name } = req.query;
+
 				var where = {};
 				var order = null;
 				var sort_type = req.query.sort;
@@ -211,10 +212,9 @@ const Controller = {
 
 				if (category) {
 					where.categories = {
-						[Op.all]: [category]
+						[Op.endsWith]: `%${category}%`
 					};
 				}
-
 				where.status = "pending";
 
 				var paginator_data = await helpers.paginator(req.query.page, {where}, Offers);
@@ -342,7 +342,7 @@ const Controller = {
 	async addBid(req, res) {
 		try {
 			var { price, hash } = req.body;
-
+			price = Number(price);
 			if (!price || !hash)
 				return res.status(422).send({error: "Not all fields has filled"});
 
@@ -365,9 +365,13 @@ const Controller = {
 					hash,
 					price
 				});
-				await offer.save();
+				// offer.bids = [...bids];
+				// console.log(bids);
+				// await offer.save();
 				await Offers.update(
-					offer,
+					{
+						bids: bids
+					},
 					{
 						where: {_id: offer._id}
 					}
@@ -415,10 +419,6 @@ const Controller = {
 				}
 			});
 			
-			offer.status = "completed";
-			offer.buyer = req.user.id;
-			offer.date_sell = Date.now();
-			offer.purchase_type = "direct";
 			// offer.bids.unshift({
 			// 	user: req.user.id,
 			// 	hash,
@@ -429,20 +429,27 @@ const Controller = {
 				user: req.user.id,
 				price
 			});
-			await offer.save();
-			await token.save();
-			// var update_offer = await Offers.update(
-			// 	offer,
-			// 	{
-			// 		where: {_id: offer._id}
-			// 	}
-			// );
-			// var update_token = await Tokens.update(
-			// 	token,
-			// 	{
-			// 		where: {_id: token._id}
-			// 	}
-			// );
+			// await offer.save();
+			// await token.save();
+			await Offers.update(
+				{
+					status : "completed",
+					buyerId : req.user.id,
+					date_sell : Date.now(),
+					purchase_type : "direct"
+				},
+				{
+					where: {_id: offer._id}
+				}
+			);
+			await Tokens.update(
+				{
+					owners: token.owners
+				},
+				{
+					where: {_id: token._id}
+				}
+			);
 			
 			res.send({message: "Success buyed"});
 
@@ -468,7 +475,7 @@ const Controller = {
 			if (!Object.keys(req.body).length) 
 				return res.status(422).send({error: "No one search params"});
 
-			var { name, date_start, date_end, price_min, price_max, sort, verified, categories } = req.body;
+			var { name, date_start, date_end, price_min, price_max, sort, verified, category } = req.body;
 			var pagination = {};
 			var sort_data = null;
 
@@ -485,9 +492,9 @@ const Controller = {
 				where.token = tokens_id;
 			}
 
-			if (categories && Array.isArray(categories)) {
+			if (category) {
 				where.categories = {
-					[Op.all]: categories
+					[Op.all]: category
 				};
 			}
 

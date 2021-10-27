@@ -181,8 +181,8 @@ const Controller = {
 			token.categories = cats;
 
 			if (token.owners) {
-				var owners = token.owners;
-				owners = await Promise.all(owners.map(async (owner) => {
+				let owners = [];
+				owners = await Promise.all(token.owners.map(async (owner) => {
 					var user = await Users.findOne({
 						where: {_id: owner.user}
 					});
