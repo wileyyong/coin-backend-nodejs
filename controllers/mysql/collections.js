@@ -123,20 +123,6 @@ const Controller = {
 					  	},
 					],
 				});
-				items = items.map(async (item) => {
-					var categories = await Categories.findAll({
-						where: {
-							_id: item.token.categories
-						}
-					});
-					return {
-						...item,
-						token: {
-							...item.token,
-							categories
-						}
-					};
-				});
 			}
 
 			if (type == "owned") {
@@ -157,17 +143,6 @@ const Controller = {
 							as: 'creator'
 						}
 					]
-				});
-				items = items.map(async (item) => {
-					var categories = await Categories.findAll({
-						where: {
-							_id: item.categories
-						}
-					});
-					return {
-						...item,
-						categories
-					};
 				});
 			}
 
