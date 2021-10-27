@@ -32,7 +32,7 @@ const Controller = {
 			});
 			tokens = await Promise.all(tokens.map(async (t) => {
 				var token = t.get({plain: true});
-				token.properties = JSON.parse(token.properties);
+				token.properties = token.properties;
 				var cats = await Categories.findAll({
 					where: {_id: token.categories}
 				});
@@ -44,7 +44,7 @@ const Controller = {
 
 			tokens = await Promise.all(tokens.map(async (token) => {
 				if (token.owners) {
-					var owners = JSON.parse(token.owners);
+					var owners = token.owners;
 					owners = owners.map(async (owner) => {
 						var user = await Users.findOne({
 							where: {_id: owner.user}
@@ -106,7 +106,7 @@ const Controller = {
 			});
 			tokens = await Promise.all(tokens.map(async (t) => {
 				var token = t.get({plain: true});
-				token.properties = JSON.parse(token.properties);
+				token.properties = token.properties;
 				var cats = await Categories.findAll({
 					where: {_id: token.categories}
 				});
@@ -118,7 +118,7 @@ const Controller = {
 
 			tokens = await Promise.all(tokens.map(async (token) => {
 				if (token.owners) {
-					var owners = JSON.parse(token.owners);
+					var owners = token.owners;
 					owners = owners.map(async (owner) => {
 						var user = await Users.findOne({
 							where: {_id: owner.user}
@@ -174,14 +174,14 @@ const Controller = {
 			if (!token) 
 				return res.status(404).send({error: "Token not found"});
 
-			token.properties = JSON.parse(token.properties);
+			token.properties = token.properties;
 			var cats = await Categories.findAll({
 				where: {_id: token.categories}
 			});
 			token.categories = cats;
 
 			if (token.owners) {
-				var owners = JSON.parse(token.owners);
+				var owners = token.owners;
 				owners = await Promise.all(owners.map(async (owner) => {
 					var user = await Users.findOne({
 						where: {_id: owner.user}
@@ -217,7 +217,7 @@ const Controller = {
 			// .populate("bids.user", "+wallet")
 			if (offer) {
 				if (offer.bids) {
-					var bids = JSON.parse(offer.bids);
+					var bids = offer.bids;
 					bids = await Promise.all(bids.map(async (bid) => {
 						var user = await Users.findOne({
 							where: {_id: bid.user}
@@ -255,10 +255,6 @@ const Controller = {
 				]
 			})
 			var ret = {token, offer, history};
-			console.log('--------------------------------',ret);
-			
-			console.log('--------------------------------');
-
 			res.send(ret);
 		}
 		catch(error) {
@@ -284,7 +280,7 @@ const Controller = {
 				description: token.description,
 				attributes: token.attributes,
 				image_url: token.thumbnail || token.media,
-				properties: JSON.parse(token.properties)
+				properties: token.properties
 			});
 		}
 		catch(error) {

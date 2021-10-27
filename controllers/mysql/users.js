@@ -80,10 +80,10 @@ const Controller = {
 			stats.collectibles = await Tokens.count({
 				where: {
 					owners: {
-						[Op.like]: `%${user_id}%`
+						[Op.endsWith]: `%${user_id}%`
 					}
 				}
-			});//??
+			});
 			stats.created = await Tokens.count({
 				where: {
 					creatorId: user_id
@@ -98,14 +98,14 @@ const Controller = {
 			stats.followers = await Users.count({
 				where: {
 					following: {
-						[Op.like]: `%${user_id}%`
+						[Op.endsWith]: `%${user_id}%`
 					}
 				}
 			});
 			stats.liked = await Tokens.count({
 				where: {
 					likes: {
-						[Op.like]: `%${user_id}%`
+						[Op.endsWith]: `%${user_id}%`
 					}
 				}
 			});
@@ -124,7 +124,7 @@ const Controller = {
 							_id: req.user.id
 						}
 					});
-					user.followed = current_user.following.includes(user_id);
+					user.followed = current_user.following ? current_user.following.includes(user_id) : null;
 				}
 			}
 			else {
@@ -197,20 +197,6 @@ const Controller = {
 						],
 					});
 					// populate: ["categories", "collections", "creator"]
-					if (items) {
-						items = items.map(async (i) => {
-							var item = i.get({plain: true});
-							var categories = await Categories.findAll({
-								where: {
-									_id: item.token.categories
-								}
-							});
-							return {
-								...item,
-								categories
-							};
-						});
-					}
 
 					helpers.calcLikesArray(items, req.user);	
 						
@@ -220,14 +206,18 @@ const Controller = {
 				case "collectibles": {
 					var where = {
 						owners: {
-							[Op.like]: `%${user_id}%`
+							[Op.endsWith]: `%${user_id}%`
 						}
 					};
 					var paginator_data = await helpers.paginator(req.query.page, {where}, Tokens);
 					pagination = paginator_data.info;
 
 					items = await Tokens.findAll({
-						where,
+						where: {
+							owners: {
+								[Op.endsWith]: `%${user_id}%`
+							}
+						},
 						limit: 20,
 						skip: paginator_data.skip,
 						order: [['date_create', 'DESC']],
@@ -243,30 +233,14 @@ const Controller = {
 						],
 					});
 					if (items) {
-						items = items.map(async (t) => {
-							var token = t.get({plain: true});
-							var categories = await Categories.findAll({
-								where: {
-									_id: token.categories
-								}
-							});
-							return {
-								...token,
-								categories
-							};
-						});
-						items = items.map(async (token) => {
-							var offer = await Offers.findOne({
+						for (var token of items) {
+							token.offer = await Offers.findOne({
 								where: {
 									status: "pending",
-									token: token._id
+									tokenId: token._id
 								}
 							});
-							return {
-								...token,
-								offer
-							}
-						});
+						}
 					}
 					helpers.calcLikesArray(items, req.user);
 
@@ -294,32 +268,20 @@ const Controller = {
 							}
 						],
 					});
-					if (items) {
-						items = items.map(async (t) => {
-							var token = t.get({plain: true});
-							var categories = await Categories.findAll({
-								where: {
-									_id: token.categories
-								}
-							});
-							return {
-								...token,
-								categories
-							};
-						});
-						items = items.map(async (token) => {
-							var offer = await Offers.findOne({
-								where: {
-									status: "pending",
-									token: token._id
-								}
-							});
-							return {
-								...token,
-								offer
-							}
-						});
-					}
+					// if (items) {
+					// 	items = items.map(async (token) => {
+					// 		var offer = await Offers.findOne({
+					// 			where: {
+					// 				status: "pending",
+					// 				tokenId: token._id
+					// 			}
+					// 		});
+					// 		return {
+					// 			...token,
+					// 			offer
+					// 		}
+					// 	});
+					// }
 					
 					helpers.calcLikesArray(items, req.user);
 					
@@ -377,7 +339,7 @@ const Controller = {
 				case "followers": {
 					var where = {
 						following: {
-							[Op.like]: `%${user_id}%`
+							[Op.endsWith]: `%${user_id}%`
 						}
 					};
 					var paginator_data = await helpers.paginator(req.query.page, {where}, Users);
@@ -396,8 +358,8 @@ const Controller = {
 				case "liked": {
 					var where = {
 						likes: {
-							[Op.like]: `%${user_id}%`
-						}, 
+							[Op.endsWith]: `%${user_id}%`
+						}
 					};
 					var paginator_data = await helpers.paginator(req.query.page, {where}, Tokens);
 					pagination = paginator_data.info;
@@ -691,15 +653,16 @@ const Controller = {
 			if (!user) 
 				return res.status(404).send({error: "User not found"});
 			
-			// var current_user = await Users.findOne({_id: req.user.id});
-			// current_user.following.push(user_id);
-			// await current_user.save();
+			var current_user = await Users.findOne({_id: req.user.id});
+			let following = current_user.following ? current_user.following : [];
+			following.push(user_id);
+			await current_user.save();
 			var mode = req.path.split("/").pop();
 			var set = {};
 
 			if (mode == "follow") 
 				set = {
-					following: [...following, user_id]
+					following: ''
 				};
 			if (mode == "unfollow") 
 				set = {

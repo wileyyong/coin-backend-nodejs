@@ -33,7 +33,7 @@ const closeExpiredOffers = async () => {
 		return false;
 	
 	for (var offer of offers) {
-		var bids = JSON.parse(bids);
+		var bids = offer.bids;
 		if (bids.length) {
 			var user_info = bids[0];
 			

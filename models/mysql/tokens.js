@@ -17,17 +17,18 @@ module.exports = (sequelize) => {
 			type: DataTypes.STRING,
 			defaultValue: "/media/html.jpg"
 		},
-		attributes: {
-			type: Sequelize.STRING,
-			get() {
-				var val = this.getDataValue('attributes');
-				return val && val.split(';');
-			},
-			set(val) {
-				this.setDataValue('attributes',val.join(';'));
-			},
-				defaultValue: ''
-		},
+		attributes: DataTypes.JSON,
+		// {
+		// 	type: Sequelize.STRING,
+		// 	get() {
+		// 		var val = this.getDataValue('attributes');
+		// 		return val && val.split(';');
+		// 	},
+		// 	set(val) {
+		// 		this.setDataValue('attributes',val.join(';'));
+		// 	},
+		// 		defaultValue: ''
+		// },
 		thumbnail: {
 			type: DataTypes.STRING,
 			defaultValue: null
@@ -36,23 +37,24 @@ module.exports = (sequelize) => {
 			type: DataTypes.STRING,
 		},
 		royalties: {
-			type: DataTypes.INTEGER,
+			type: DataTypes.FLOAT,
 			defaultValue: 0
 		},
 		collectionsId: {
 			type: DataTypes.STRING,
 			defaultValue: null
 		},
-		categories: {
-			type: Sequelize.STRING,
-			get() {
-				var val = this.getDataValue('categories');
-				return val && val.split(';');
-			},
-			set(val) {
-				this.setDataValue('categories',val.join(';'));
-			},
-		},
+		categories: DataTypes.JSON,
+		// {
+		// 	type: Sequelize.STRING,
+		// 	get() {
+		// 		var val = this.getDataValue('categories');
+		// 		return val && val.split(';');
+		// 	},
+		// 	set(val) {
+		// 		this.setDataValue('categories',val.join(';'));
+		// 	},
+		// },
 		creatorId: {
 			type: DataTypes.STRING,
 			allowNull: false
@@ -80,19 +82,20 @@ module.exports = (sequelize) => {
 			type: DataTypes.BOOLEAN,
 			defaultValue: false
 		},
-		likes: {
-			type: Sequelize.STRING,
-			get() {
-				var val = this.getDataValue('likes');
-				return val && val.split(';');
-			},
-			set(val) {
-				if (typeof(val) == "object")
-					this.setDataValue('likes',val.join(';'));
-				else
-				this.setDataValue('likes',val);
-			},
-		},
+		likes: DataTypes.JSON,
+		// {
+		// 	type: Sequelize.STRING,
+		// 	get() {
+		// 		var val = this.getDataValue('likes');
+		// 		return val && val.split(';');
+		// 	},
+		// 	set(val) {
+		// 		if (typeof(val) == "object")
+		// 			this.setDataValue('likes',val.join(';'));
+		// 		else
+		// 		this.setDataValue('likes',val);
+		// 	},
+		// },
 		date_create: {
 			type: DataTypes.DATE,
 			defaultValue: DataTypes.NOW

@@ -28,19 +28,20 @@ module.exports = (sequelize) => {
 			type: DataTypes.STRING,
 		},
 		purchase_type: DataTypes.ENUM(["auction", "direct"]),
-		categories: {
-			type: Sequelize.STRING,
-			get() {
-				var val = this.getDataValue('categories');
-				return val && val.split(';');
-			},
-			set(val) {
-				this.setDataValue('categories',val.join(';'));
-			},
-		},
+		categories: DataTypes.JSON,
+		// {
+		// 	type: Sequelize.STRING,
+		// 	get() {
+		// 		var val = this.getDataValue('categories');
+		// 		return val;
+		// 	},
+		// 	set(val) {
+		// 		this.setDataValue('categories',val);
+		// 	},
+		// },
 		bids: DataTypes.JSON,
-		offer_price: DataTypes.INTEGER,
-		min_bid: DataTypes.INTEGER,
+		offer_price: DataTypes.FLOAT,
+		min_bid: DataTypes.FLOAT,
 		date_sell: DataTypes.DATE,
 		date_start: {
 			type: DataTypes.DATE,

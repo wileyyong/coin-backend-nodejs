@@ -17,7 +17,7 @@ module.exports = (sequelize) => {
         toUserId: DataTypes.STRING,
         tokenId: DataTypes.STRING,
         offerId: DataTypes.STRING,
-        price: DataTypes.INTEGER,
+        price: DataTypes.FLOAT,
         date: {
           type: DataTypes.DATE,
           defaultValue: DataTypes.NOW

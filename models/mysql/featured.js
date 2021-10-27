@@ -14,7 +14,7 @@ module.exports = (sequelize) => {
         },
         featured: DataTypes.STRING,
         featured_name: DataTypes.STRING,
-        featured_price: DataTypes.INTEGER
+        featured_price: DataTypes.FLOAT
     },
 	{
 		timestamps: false,

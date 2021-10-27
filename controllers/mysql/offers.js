@@ -5,7 +5,6 @@ const { Op } = require("sequelize");
 const Controller = {
 	async createOffer(req, res) {
 		try {
-			console.log(req.body);
 			var { token_id, offer_price, min_bid, expiry_date } = req.body;
 
 			if ("offer_price" in req.body) offer_price = Number(offer_price);
@@ -21,8 +20,8 @@ const Controller = {
 			});
 			if (!token) 
 				return res.status(404).send({error: "Token not found"});
-			token.owners = JSON.parse(token.owners);
-			if (req.user.id != token.owners[0].user)
+
+			if (req.user.id != String(token.owners[0].user)) 
 				return res.status(403).send({error: "Token is not yours"});
 			
 			if (!token.chain_id)
@@ -63,13 +62,12 @@ const Controller = {
 			if (offer_price) {
 				offer_data.offer_price = offer_price;
 			}
-
-			// if (token.owners.length == 1) {
-			// 	token.owners[0].price = offer_data.min_bid || offer_data.offer_price;
-			// 	await token.save();
-			// }
-			// ??
-
+			let owners = token.owners;
+			if (owners && owners.length == 1) {
+				owners[0].price = offer_data.min_bid || offer_data.offer_price;
+				token.owners = owners;
+				await token.save();
+			}
 			var offer = await Offers.create(offer_data);
 			res.send({message: "Offer created", offer});
 
@@ -118,9 +116,8 @@ const Controller = {
 					}
 				]
 			});
-			console.log(offer);
 			if (offer) {
-				var bids = JSON.parse(offer.bids);
+				var bids = offer.bids;
 				offer = bids.map(async (bid) => {
 					var user = await Users.findOne({
 						where: {_id: bid.user}
@@ -248,7 +245,7 @@ const Controller = {
 				
 				offers = offers.map((offer) => offer.get({ plain: true}));
 				offers = await Promise.all(offers.map(async (offer) => {
-					var bids = JSON.parse(offer.bids);
+					var bids = offer.bids;
 					bids = await Promise.all(bids?.map(async (bid) => {
 						var user = await Users.findOne({
 							where: {_id: bid.user}
@@ -265,7 +262,7 @@ const Controller = {
 				}));
 				offers = await Promise.all(offers.map(async (offer) => {
 					if (offer.token) {
-						var owners = JSON.parse(offer.token.owners);
+						var owners = offer.token.owners;
 						owners = await Promise.all(owners?.map(async(owner) => {
 							var user = await Users.findOne({
 								where: {_id: owner.user}
@@ -358,7 +355,7 @@ const Controller = {
 
 			if (!offer)
 				return res.status(404).send({error: "Auction not found"});
-			var bids = JSON.parse(bids);
+			var bids = offer.bids;
 			if (bids.length && bids[0].price >= price && price <= min_bid) {
 				return res.status(422).send({message: "Bid is less or equal than the previous one"});
 			}
@@ -369,12 +366,12 @@ const Controller = {
 					price
 				});
 				await offer.save();
-				// await Offers.update(
-				// 	offer,
-				// 	{
-				// 		where: {_id: offer._id}
-				// 	}
-				// );
+				await Offers.update(
+					offer,
+					{
+						where: {_id: offer._id}
+					}
+				);
 				res.send({message: "Success bidding"});
 			}
 
@@ -543,7 +540,7 @@ const Controller = {
 
 			offers = await Promise.all(offers.map(async (offer) => {
 				if (offer.token) {
-					var owners = JSON.parse(offer.token.owners);
+					var owners = offer.token.owners;
 					owners = await Promise.all(owners?.map(async(owner) => {
 						var user = await Users.findOne({
 							where: {_id: owner.user}

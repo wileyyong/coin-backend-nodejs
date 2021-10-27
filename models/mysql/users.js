@@ -32,25 +32,23 @@ module.exports = (sequelize) => {
 			type: DataTypes.BOOLEAN,
 			defaultValue: false
 		},
-		featured: DataTypes.STRING,
-		featured_name: DataTypes.STRING,
-		featured_price: DataTypes.INTEGER,
 		date_create: {
 			type: DataTypes.DATE,
 			defaultValue: DataTypes.NOW
 		},
-		following: {
-			type: DataTypes.STRING,
-			get() {
-				var val = this.getDataValue('following');
-				return val && val.split(';')
-			},
-			set(val) {
-				this.setDataValue('following',val.join(';'));
-			},
-		},
+		following: DataTypes.JSON,
+		// {
+		// 	type: DataTypes.STRING,
+		// 	get() {
+		// 		var val = this.getDataValue('following');
+		// 		return val && val.split(',')
+		// 	},
+		// 	set(val) {
+		// 		this.setDataValue('following',val);
+		// 	},
+		// },
 		royalties: {
-			type: DataTypes.INTEGER,
+			type: DataTypes.FLOAT,
 			defaultValue: 0
 		}
 	},
