@@ -4,7 +4,6 @@ const { Op } = require("sequelize");
 
 const Controller = {
 	async getAllTokens(req, res) {
-		console.log('getAllTokens');
 		try {
 			var where = {
 				chain_id: {
@@ -32,7 +31,7 @@ const Controller = {
 			});
 			tokens = await Promise.all(tokens.map(async (t) => {
 				var token = t.get({plain: true});
-				token.properties = token.properties;
+				token.properties = JSON.parse(token.properties);
 				var cats = await Categories.findAll({
 					where: {_id: token.categories}
 				});
@@ -73,7 +72,6 @@ const Controller = {
 
 	
 	async getMyTokens(req, res) {
-		console.log('getMyTokens');
 		try {
 			var where = {
 				[Op.or]: [
@@ -106,7 +104,7 @@ const Controller = {
 			});
 			tokens = await Promise.all(tokens.map(async (t) => {
 				var token = t.get({plain: true});
-				token.properties = token.properties;
+				token.properties = JSON.parse(token.properties);
 				var cats = await Categories.findAll({
 					where: {_id: token.categories}
 				});
@@ -149,7 +147,6 @@ const Controller = {
 
 
 	async getTokenInfo(req, res) {
-		console.log('getTokenInfo');
 		try {
 			var token_id = req.params.id;
 			var where = {
@@ -174,7 +171,7 @@ const Controller = {
 			if (!token) 
 				return res.status(404).send({error: "Token not found"});
 
-			token.properties = token.properties;
+			token.properties = JSON.parse(token.properties);
 			var cats = await Categories.findAll({
 				where: {_id: token.categories}
 			});
@@ -254,6 +251,7 @@ const Controller = {
 					},
 				]
 			})
+
 			var ret = {token, offer, history};
 			res.send(ret);
 		}
@@ -265,7 +263,6 @@ const Controller = {
 
 
 	async getTokenJson(req, res) {
-		console.log('getTokenJson');
 		try {
 			var token_id = req.params.id;
 			var token = await Tokens.findOne({
@@ -278,8 +275,8 @@ const Controller = {
 			res.send({
 				name: token.name,
 				description: token.description,
-				attributes: token.attributes,
-				image_url: token.thumbnail || token.media,
+				attributes: JSON.parse(token.properties),
+				imageUrl: token.thumbnail || token.media,
 				properties: token.properties
 			});
 		}
