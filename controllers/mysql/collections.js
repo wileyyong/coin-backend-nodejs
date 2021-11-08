@@ -27,7 +27,6 @@ const Controller = {
 			res.send({collections, ...pagination});
 		}
 		catch(error) {
-			console.log("Collection get all error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},
@@ -77,7 +76,6 @@ const Controller = {
 			res.send({collection, stats});
 		}
 		catch(error) {
-			console.log("Collection get one error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},
@@ -150,7 +148,6 @@ const Controller = {
 			res.send({items, ...pagination});
 		}
 		catch(error) {
-			console.log("Collection get tokens error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},
@@ -182,7 +179,6 @@ const Controller = {
 			res.send({collections});
 		}
 		catch(error) {
-			console.log("Collection get my error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},
@@ -226,7 +222,6 @@ const Controller = {
 			res.send({message: "Collection success created", collection});
 		}
 		catch(error) {
-			console.log("Collection create error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},
@@ -259,7 +254,6 @@ const Controller = {
 			res.send({message: "Collection success deleted"});
 		}
 		catch(error) {
-			console.log("Collection delete error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},
@@ -300,7 +294,6 @@ const Controller = {
 			res.send({collections, ...pagination});
 		}
 		catch(error) {
-			console.log("Collection search error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	}

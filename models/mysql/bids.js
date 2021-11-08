@@ -3,11 +3,11 @@ const { v4 } = require('uuid');
 
 module.exports = (sequelize) => {
 	return sequelize.define('tbl_bids', {
-        _id: {
-            type: DataTypes.UUID,
-            primaryKey: true,
-            defaultValue: v4
-        },
+		_id: {
+				type: DataTypes.UUID,
+				primaryKey: true,
+				defaultValue: v4
+		},
 		user: {
 			type: DataTypes.STRING,
 			allowNull: false

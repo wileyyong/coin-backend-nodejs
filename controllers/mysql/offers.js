@@ -80,7 +80,6 @@ const Controller = {
 			});
 		}
 		catch(error) {
-			console.log("Offer creating error", error);
 			res.status(500).send({error: "Offer creating error"});
 		}
 	},
@@ -333,7 +332,6 @@ const Controller = {
 			}
 		}
 		catch(error) {
-			console.log("Auction get all error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},
@@ -366,7 +364,6 @@ const Controller = {
 					price
 				});
 				// offer.bids = [...bids];
-				// console.log(bids);
 				// await offer.save();
 				await Offers.update(
 					{
@@ -388,7 +385,6 @@ const Controller = {
 			});
 		}
 		catch(error) {
-			console.log("Auction bid error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},
@@ -464,7 +460,6 @@ const Controller = {
 			Controller.giveRoyalties(offer, token);
 		}
 		catch(error) {
-			console.log("Auction buy error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},
@@ -652,7 +647,6 @@ const Controller = {
 
 		}
 		catch(error) {
-			console.log("Token search error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},

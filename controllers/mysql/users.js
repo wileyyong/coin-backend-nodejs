@@ -63,6 +63,7 @@ const Controller = {
 			var stats = {
 				on_sale: 0,
 				collectibles: 0,
+				sold: 0,
 				created: 0,
 				liked: 0,
 				activity: 0,
@@ -78,6 +79,13 @@ const Controller = {
 				}
 			});
 			stats.collectibles = await Tokens.count({
+				where: {
+					owners: {
+						[Op.endsWith]: `%${user_id}%`
+					}
+				}
+			});
+			stats.sold = await Tokens.count({
 				where: {
 					owners: {
 						[Op.endsWith]: `%${user_id}%`
@@ -136,7 +144,6 @@ const Controller = {
 			res.send({user, stats});
 		}
 		catch(error) {
-			console.log("User get one error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},
@@ -428,7 +435,6 @@ const Controller = {
 			res.send({type, items, ...pagination});
 		}
 		catch(error) {
-			console.log("User get items error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},
@@ -451,7 +457,6 @@ const Controller = {
 			res.send({user});
 		}
 		catch(error) {
-			console.log("User get current error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},
@@ -489,7 +494,6 @@ const Controller = {
 			res.send({message: "Settings updated"});
 		}
 		catch(error) {
-			console.log("User update settings error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},
@@ -510,7 +514,6 @@ const Controller = {
 			res.send({message: "Verified"});
 		}
 		catch(error) {
-			console.log("User verification error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},
@@ -550,7 +553,6 @@ const Controller = {
 			}
 		}
 		catch(error) {
-			console.log("User update cover error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},
@@ -630,7 +632,6 @@ const Controller = {
 			res.send({ users });
 		}
 		catch (error) {
-			console.log("Users tops error", error);
 			res.status(500).send({ error: "Server error" });
 		}
 	},
@@ -700,7 +701,6 @@ const Controller = {
 			res.send({message: "Success"});
 		}
 		catch(error) {
-			console.log("User following error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	}

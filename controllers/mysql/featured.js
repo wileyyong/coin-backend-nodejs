@@ -37,7 +37,6 @@ const Controller = {
 			res.send({message: "Featured added"});
 		}
 		catch(error) {
-			console.log("User update featured error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},
@@ -89,7 +88,6 @@ const Controller = {
 			}
 		}
 		catch(error) {
-			console.log("User update featuredImage error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},

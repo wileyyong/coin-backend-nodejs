@@ -25,7 +25,6 @@ const Controller = {
 			res.send({token});
 		}
 		catch(error) {
-			console.log(error);
 			res.status(500).send({error: "Server error"});
 		}
 	},
@@ -82,7 +81,6 @@ const Controller = {
 			res.send({token});
 		}
 		catch(error) {
-			console.log("Auth wallet error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	}

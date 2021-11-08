@@ -65,7 +65,6 @@ const Controller = {
 			res.send({tokens, ...pagination});
 		}
 		catch(error) {
-			console.log("Token get all error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},
@@ -140,7 +139,6 @@ const Controller = {
 			res.send({tokens, ...pagination});
 		}
 		catch(error) {
-			console.log("Token get my error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},
@@ -256,7 +254,6 @@ const Controller = {
 			res.send(ret);
 		}
 		catch(error) {
-			console.log("Token get error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},
@@ -275,13 +272,12 @@ const Controller = {
 			res.send({
 				name: token.name,
 				description: token.description,
-				attributes: JSON.parse(token.properties),
+				attributes: token.attributes,
 				imageUrl: token.thumbnail || token.media,
-				properties: token.properties
+				properties: JSON.parse(token.properties)
 			});
 		}
 		catch(error) {
-			console.log("Token JSON error", error);
 			res.status(500).send({error: "Token JSON error"});
 		}
 	},
@@ -325,18 +321,15 @@ const Controller = {
 			});
 		}
 		catch(error) {
-			console.log("Token create error", error);
 			res.status(500).send({error: "Token creation error"});
 		}
 	},
 
 
 	async setTokenChainId(req, res) {
-		console.log('setTokenChainId', req.body.chain_id, req.params.id);
 		try {
 			var token_id = req.params.id;
 			var chain_id = req.body.chain_id;
-			console.log(chain_id);
 			if (!token_id || !chain_id) 
 				return res.status(422).send({error: "Not all fields has filled"});
 
@@ -354,14 +347,12 @@ const Controller = {
 			res.send({message: "Success changed"});
 		}
 		catch(error) {
-			console.log("Token set chain error", error);
 			res.status(500).send({error: "Token set chain_id error"});
 		}
 	},
 
 
 	async deleteToken(req, res) {
-		console.log('deleteToken');
 		try {
 			var _id = req.params.id;
 
@@ -389,7 +380,6 @@ const Controller = {
 			res.send({message: "Token success deleted"});
 		}
 		catch(error) {
-			console.log("Token delete error", error);
 			res.status(500).send({error: "Token delete error"});
 		}
 	},
@@ -452,7 +442,6 @@ const Controller = {
 			res.send({message: "Success"});
 		}
 		catch(error) {
-			console.log("Token like error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	}

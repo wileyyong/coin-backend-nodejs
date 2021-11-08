@@ -9,7 +9,6 @@ const Controller = {
 			res.send({categories});
 		}
 		catch(error) {
-			console.log("Categories get all error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},
@@ -27,7 +26,6 @@ const Controller = {
 			res.send({category});
 		}
 		catch(error) {
-			console.log("Categories create error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	},
@@ -49,7 +47,6 @@ const Controller = {
 				return res.status(404).send({error: "Nothing was deleted"});
 		}
 		catch(error) {
-			console.log("Categories create error", error);
 			res.status(500).send({error: "Server error"});
 		}
 	}
