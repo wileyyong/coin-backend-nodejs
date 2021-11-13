@@ -273,7 +273,7 @@ const Controller = {
 				name: token.name,
 				description: token.description,
 				attributes: token.attributes,
-				imageUrl: token.thumbnail || token.media,
+				image: token.thumbnail || token.media,
 				properties: JSON.parse(token.properties)
 			});
 		}
