@@ -268,16 +268,16 @@ const Controller = {
 
 			if (!token) 
 				return res.status(404).send({error: "Token not found"});
-
 			res.send({
 				name: token.name,
 				description: token.description,
 				attributes: token.attributes,
-				imageUrl: token.thumbnail || token.media,
-				properties: JSON.parse(token.properties)
+				image: token.thumbnail || token.media,
+				properties: token.properties ? JSON.parse(token.properties) : []
 			});
 		}
 		catch(error) {
+			console.log(error);
 			res.status(500).send({error: "Token JSON error"});
 		}
 	},
