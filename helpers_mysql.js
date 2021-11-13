@@ -127,7 +127,6 @@ module.exports = {
 	getOfferMinPrice,
 	calcLikes,
 	calcLikesArray,
-	generateThumbnail,
 	uploadToIPFS,
 	paginator
 }
