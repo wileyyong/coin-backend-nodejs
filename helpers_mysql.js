@@ -1,4 +1,7 @@
 const path = require("path");
+const ipfsClient = require("ipfs-api");
+const ipfs = ipfsClient({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' });
+const sharp = require("sharp");
 
 const uploadFile = async (file, filename, folder) => {
 	var type = file.name.split(".").pop().toLowerCase();
@@ -104,6 +107,48 @@ const paginator = async (page, query, model, per_page = 20) => {
 	return output;
 }
 
+const generateThumbnail = async ({ token, file, id, folder }) => {
+	try {
+		if (token) {
+			var image_path = (token.preview || token.media).substr(1);
+			var image_type = image_path.split(".").pop().toLowerCase();
+			var thumbnail_path = image_path.replace(/media|preview/gi, "thumbnail");
+		}
+
+		if (file) {
+			var image_type = file.name.split(".").pop().toLowerCase();
+			var image_path = `${id}.${image_type}`;
+			var thumbnail_path = `content/${folder}/${image_path}`;
+		}
+
+		if (!["webp", "jpg", "jpeg", "png"].includes(image_type)) return;
+
+		await sharp(file ? file.data : image_path)
+			.resize({ width: config.thumbnail_size })
+			.webp({ progressive: true, force: false, quality: config.thumbnail_quality })
+			.jpeg({ progressive: true, force: false, quality: config.thumbnail_quality })
+			.png({ progressive: true, force: false, quality: config.thumbnail_quality })
+			.toFile(thumbnail_path);
+
+		return ("/" + thumbnail_path);
+	}
+	catch (error) {
+		console.log(`Thumbnail generating error ${thumbnail_path}`, error);
+		return;
+	}
+};
+
+const uploadToIPFS = async (file, token_id) => {
+	try {
+		var data = await ipfs.add(file);
+		return ((data && data[0] && data[0].path) ? "https://ipfs.infura.io/ipfs/" + data[0].path : null);
+	}
+	catch (error) {
+		console.log(`Uploading error to IPFS for token ${token_id}`.red);
+		return null;
+	}
+};
+
 
 module.exports = {
 	parseFormData,
@@ -113,5 +158,7 @@ module.exports = {
 	getOfferMinPrice,
 	calcLikes,
 	calcLikesArray,
+	generateThumbnail,
+	uploadToIPFS,
 	paginator
 }

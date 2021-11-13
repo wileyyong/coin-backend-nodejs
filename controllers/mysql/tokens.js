@@ -31,7 +31,6 @@ const Controller = {
 			});
 			tokens = await Promise.all(tokens.map(async (t) => {
 				var token = t.get({plain: true});
-				token.properties = JSON.parse(token.properties);
 				var cats = await Categories.findAll({
 					where: {_id: token.categories}
 				});
@@ -103,7 +102,6 @@ const Controller = {
 			});
 			tokens = await Promise.all(tokens.map(async (t) => {
 				var token = t.get({plain: true});
-				token.properties = JSON.parse(token.properties);
 				var cats = await Categories.findAll({
 					where: {_id: token.categories}
 				});
@@ -169,7 +167,6 @@ const Controller = {
 			if (!token) 
 				return res.status(404).send({error: "Token not found"});
 
-			token.properties = JSON.parse(token.properties);
 			var cats = await Categories.findAll({
 				where: {_id: token.categories}
 			});
@@ -298,11 +295,13 @@ const Controller = {
 				offchain: offchain || false,
 			};
 			var token = await Tokens.create(token_data);
-			var media = await helpers.uploadFile(req.files.media, token._id, "content/media");
+			var media = await helpers.uploadToIPFS(req.files.media.data, token._id);
+			if (!media) media = await helpers.uploadFile(req.files.media, token._id, "content/media");
+			var media_type = req.files.media.name.split(".").pop().toLowerCase();
 
 			// var set = {};
 			token.media = media;
-			
+			token.media_type = media_type;
 			if (req.files.thumbnail) {
 				var thumbnail = await helpers.uploadFile(req.files.thumbnail, token._id, "content/thumbnail");
 				token.thumbnail = thumbnail;
