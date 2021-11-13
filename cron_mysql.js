@@ -50,7 +50,7 @@ const closeExpiredOffers = async () => {
 			offer.purchase_type = "auction";
 			
 			var token = await Tokens.findOne({
-				where: {id: offer.token}
+				where: {_id: offer.token}
 			});
 			token.owners.unshift({
 				user: user_info.user,
@@ -69,7 +69,7 @@ const closeExpiredOffers = async () => {
 		await Offers.update(
 			offer,
 			{
-				where: {id: offer.id}
+				where: {_id: offer.id}
 			}
 		);
 	}
