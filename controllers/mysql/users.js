@@ -5,7 +5,7 @@ const helpers = require("../../helpers_mysql");
 const Controller = {
 	async searchUser(req, res) {
 		try {
-			if (!Object.keys(req.body).length) 
+			if (!Object.keys(req.body).length)
 				return res.status(422).send({error: "No one search params"});
 
 			var { name, verified, bio } = req.body;
@@ -29,7 +29,7 @@ const Controller = {
 				skip: paginator_data.skip,
 				order: [['date_create', 'DESC']]
 			});
-				
+
 			res.send({users, ...pagination});
 		}
 		catch(error) {
@@ -52,10 +52,10 @@ const Controller = {
 					{ _id: user_id }
 				]
 			};
-		
+
 			var user = await Users.findOne({where});
 
-			if (!user) 
+			if (!user)
 				return res.status(404).send({error: "User not found"});
 
 			user_id = user._id;
@@ -81,15 +81,22 @@ const Controller = {
 			stats.collectibles = await Tokens.count({
 				where: {
 					owners: {
-						[Op.endsWith]: `%${user_id}%`
+						[Op.startsWith]: `[{"user": "${user_id}"`
 					}
 				}
 			});
 			stats.sold = await Tokens.count({
 				where: {
-					owners: {
-						[Op.endsWith]: `%${user_id}%`
-					}
+					[Op.not]: [{
+						owners: {
+							[Op.startsWith]: `[{"user": "${user_id}"`
+						}
+					}],
+					[Op.and]: [{
+						owners: {
+							[Op.substring]: `${user_id}`
+						}
+					}]
 				}
 			});
 			stats.created = await Tokens.count({
@@ -156,7 +163,7 @@ const Controller = {
 			var pagination = {};
 
 			// var is_wallet = !mongoose.Types.ObjectId.isValid(user_id);
-		
+
 			var user = await Users.findOne({
 				where: {
 					[Op.or]: [
@@ -166,8 +173,8 @@ const Controller = {
 				},
 				attributes: ['_id', 'following', 'royalties']
 			});
-			
-			if (!user) 
+
+			if (!user)
 				return res.status(404).send({error: "User not found"});
 
 			user_id = user._id;
@@ -205,8 +212,8 @@ const Controller = {
 					});
 					// populate: ["categories", "collections", "creator"]
 
-					helpers.calcLikesArray(items, req.user);	
-						
+					helpers.calcLikesArray(items, req.user);
+
 					break;
 				}
 
@@ -222,8 +229,66 @@ const Controller = {
 					items = await Tokens.findAll({
 						where: {
 							owners: {
-								[Op.endsWith]: `%${user_id}%`
+								[Op.startsWith]: `[{"user": "${user_id}"`
 							}
+						},
+						limit: 20,
+						skip: paginator_data.skip,
+						order: [['date_create', 'DESC']],
+						include: [
+							{
+								model: Collections,
+								as: 'collections'
+							},
+							{
+								model: Users,
+								as: 'creator'
+							}
+						],
+					});
+					if (items) {
+						for (var token of items) {
+							token.offer = await Offers.findOne({
+								where: {
+									status: "pending",
+									tokenId: token._id
+								}
+							});
+						}
+					}
+					helpers.calcLikesArray(items, req.user);
+
+					break;
+				}
+
+				case "sold": {
+					var where = {
+						[Op.not]: [{
+							owners: {
+								[Op.startsWith]: `[{"user": "${user_id}"`
+							}
+						}],
+						[Op.and]: [{
+							owners: {
+								[Op.substring]: `${user_id}`
+							}
+						}]
+					};
+					var paginator_data = await helpers.paginator(req.query.page, {where}, Tokens);
+					pagination = paginator_data.info;
+
+					items = await Tokens.findAll({
+						where: {
+							[Op.not]: [{
+								owners: {
+									[Op.startsWith]: `[{"user": "${user_id}"`
+								}
+							}],
+							[Op.and]: [{
+								owners: {
+									[Op.substring]: `${user_id}`
+								}
+							}]	
 						},
 						limit: 20,
 						skip: paginator_data.skip,
@@ -289,9 +354,9 @@ const Controller = {
 					// 		}
 					// 	});
 					// }
-					
+
 					helpers.calcLikesArray(items, req.user);
-					
+
 					break;
 				}
 
@@ -299,7 +364,7 @@ const Controller = {
 					var where = {userId: user_id};
 					var paginator_data = await helpers.paginator(req.query.page, {where}, Activities);
 					pagination = paginator_data.info;
-					
+
 					items = await Activities.findAll({
 						where,
 						limit: 20,
@@ -358,7 +423,7 @@ const Controller = {
 						skip: paginator_data.skip,
 						order: [['date_create', 'DESC']]
 					});
-						
+
 					break;
 				}
 
@@ -413,9 +478,9 @@ const Controller = {
 							}
 						});
 					}
-					
+
 					helpers.calcLikesArray(items, req.user);
-					
+
 					break;
 				}
 
@@ -427,7 +492,7 @@ const Controller = {
 							}
 						});
 					var royalties = user.royalties || 0;
-					
+
 					return res.send({type, tokens, royalties});
 				}
 			}
@@ -443,7 +508,7 @@ const Controller = {
 	async getUserSettings(req, res) {
 		try {
 			var user_id = req.user.id;
-	
+
 			var user = await Users.findOne({
 				where: {
 					_id: user_id
@@ -451,7 +516,7 @@ const Controller = {
 			});
 			// , "+wallet +email +bio +twitter +instagram").lean();
 
-			if (!user) 
+			if (!user)
 				return res.status(404).send({error: "User not found"});
 
 			res.send({user});
@@ -476,7 +541,7 @@ const Controller = {
 
 			if (!Object.keys(set).length && !req.files)
 				return res.status(422).send({error: "Nothing to update"});
-			
+
 			if (req.files && req.files.avatar) {
 				set.avatar = await helpers.uploadFile(req.files.avatar, req.user.id, "content/avatar");
 			}
@@ -490,7 +555,7 @@ const Controller = {
 				});
 			if (!update || update === [0])
 				return res.status(422).send({error: "Nothing was updated"});
-			
+
 			res.send({message: "Settings updated"});
 		}
 		catch(error) {
@@ -510,7 +575,7 @@ const Controller = {
 			);
 			if (!update || update === [0])
 				return res.status(422).send({error: "Verification error"});
-			
+
 			res.send({message: "Verified"});
 		}
 		catch(error) {
@@ -640,10 +705,10 @@ const Controller = {
 		try {
 			var user_id = req.params.id;
 
-			// if (!user_id || !mongoose.Types.ObjectId.isValid(user_id)) 
+			// if (!user_id || !mongoose.Types.ObjectId.isValid(user_id))
 			// 	return res.status(422).send({error: "Bad user id"});
-			
-			if (user_id == req.user.id) 
+
+			if (user_id == req.user.id)
 				return res.status(403).send({error: "You cannot follow to yourself"});
 
 			var user = await Users.findOne({
@@ -651,9 +716,9 @@ const Controller = {
 					_id: user_id
 				}
 			});
-			if (!user) 
+			if (!user)
 				return res.status(404).send({error: "User not found"});
-			
+
 			var current_user = await Users.findOne({_id: req.user.id});
 			let following = current_user.following ? current_user.following : [];
 			following.push(user_id);
@@ -661,17 +726,17 @@ const Controller = {
 			var mode = req.path.split("/").pop();
 			var set = {};
 
-			if (mode == "follow") 
+			if (mode == "follow")
 				set = {
 					following: ''
 				};
-			if (mode == "unfollow") 
+			if (mode == "unfollow")
 				set = {
 					following: following.filter((id) => id !== user_id)
 				};
 
 			var update = await Users.update(
-				set, 
+				set,
 				{
 					where: {
 						_id: req.user.id
