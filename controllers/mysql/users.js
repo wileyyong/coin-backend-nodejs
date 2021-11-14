@@ -87,16 +87,25 @@ const Controller = {
 			});
 			stats.sold = await Tokens.count({
 				where: {
-					[Op.not]: [{
-						owners: {
-							[Op.startsWith]: `[{"user": "${user_id}"`
+					[Op.or]: [
+						{
+							owners: {
+								[Op.startsWith]: `[{"user": "${user_id}", "price"`
+							}
+						},
+						{
+							[Op.not]: [{
+								owners: {
+									[Op.startsWith]: `[{"user": "${user_id}"`
+								}
+							}],
+							[Op.and]: [{
+								owners: {
+									[Op.substring]: `${user_id}`
+								}
+							}]
 						}
-					}],
-					[Op.and]: [{
-						owners: {
-							[Op.substring]: `${user_id}`
-						}
-					}]
+					]
 				}
 			});
 			stats.created = await Tokens.count({
@@ -263,32 +272,50 @@ const Controller = {
 
 				case "sold": {
 					var where = {
-						[Op.not]: [{
-							owners: {
-								[Op.startsWith]: `[{"user": "${user_id}"`
+						[Op.or]: [
+							{
+								owners: {
+									[Op.startsWith]: `[{"user": "${user_id}", "price"`
+								}
+							},
+							{
+								[Op.not]: [{
+									owners: {
+										[Op.startsWith]: `[{"user": "${user_id}"`
+									}
+								}],
+								[Op.and]: [{
+									owners: {
+										[Op.substring]: `${user_id}`
+									}
+								}]
 							}
-						}],
-						[Op.and]: [{
-							owners: {
-								[Op.substring]: `${user_id}`
-							}
-						}]
+						]
 					};
 					var paginator_data = await helpers.paginator(req.query.page, {where}, Tokens);
 					pagination = paginator_data.info;
 
 					items = await Tokens.findAll({
 						where: {
-							[Op.not]: [{
-								owners: {
-									[Op.startsWith]: `[{"user": "${user_id}"`
+							[Op.or]: [
+								{
+									owners: {
+										[Op.startsWith]: `[{"user": "${user_id}", "price"`
+									}
+								},
+								{
+									[Op.not]: [{
+										owners: {
+											[Op.startsWith]: `[{"user": "${user_id}"`
+										}
+									}],
+									[Op.and]: [{
+										owners: {
+											[Op.substring]: `${user_id}`
+										}
+									}]
 								}
-							}],
-							[Op.and]: [{
-								owners: {
-									[Op.substring]: `${user_id}`
-								}
-							}]	
+							]
 						},
 						limit: 20,
 						skip: paginator_data.skip,
