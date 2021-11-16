@@ -229,7 +229,7 @@ const Controller = {
 				case "collectibles": {
 					var where = {
 						owners: {
-							[Op.endsWith]: `%${user_id}%`
+							[Op.startsWith]: `[{"user": "${user_id}"`
 						}
 					};
 					var paginator_data = await helpers.paginator(req.query.page, {where}, Tokens);
@@ -257,7 +257,7 @@ const Controller = {
 					});
 					if (items) {
 						for (var token of items) {
-							token.offer = await Offers.findOne({
+							token.dataValues.offer = await Offers.findOne({
 								where: {
 									status: "pending",
 									tokenId: token._id
@@ -333,7 +333,7 @@ const Controller = {
 					});
 					if (items) {
 						for (var token of items) {
-							token.offer = await Offers.findOne({
+							token.dataValues.offer = await Offers.findOne({
 								where: {
 									status: "pending",
 									tokenId: token._id
