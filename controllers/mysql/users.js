@@ -367,20 +367,16 @@ const Controller = {
 							}
 						],
 					});
-					// if (items) {
-					// 	items = items.map(async (token) => {
-					// 		var offer = await Offers.findOne({
-					// 			where: {
-					// 				status: "pending",
-					// 				tokenId: token._id
-					// 			}
-					// 		});
-					// 		return {
-					// 			...token,
-					// 			offer
-					// 		}
-					// 	});
-					// }
+					if (items) {
+						for (var token of items) {
+							token.dataValues.offer = await Offers.findOne({
+								where: {
+									status: "pending",
+									tokenId: token._id
+								}
+							});
+						}
+					}
 
 					helpers.calcLikesArray(items, req.user);
 
@@ -480,30 +476,14 @@ const Controller = {
 						],
 					});
 					if (items) {
-						items = items.map(async (t) => {
-							var token = t.get({plain: true});
-							var categories = await Categories.findAll({
-								where: {
-									_id: token.categories
-								}
-							});
-							return {
-								...token,
-								categories
-							};
-						});
-						items = items.map(async (token) => {
-							var offer = await Offers.findOne({
+						for (var token of items) {
+							token.dataValues.offer = await Offers.findOne({
 								where: {
 									status: "pending",
-									token: token._id
+									tokenId: token._id
 								}
 							});
-							return {
-								...token,
-								offer
-							}
-						});
+						}
 					}
 
 					helpers.calcLikesArray(items, req.user);
