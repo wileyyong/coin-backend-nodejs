@@ -361,7 +361,8 @@ const Controller = {
 				bids.unshift({
 					user: req.user.id,
 					hash,
-					price
+					price,
+					date: new Date()
 				});
 				// offer.bids = [...bids];
 				// await offer.save();
