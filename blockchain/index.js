@@ -10,14 +10,14 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 const provider = new HDWalletProvider(secrets.mnemonic, `https://rinkeby.infura.io/v3/${secrets.projectId}`);
 
 const web3 = new Web3(provider);
-const engine = new web3.eth.Contract(artifacts_engine.abi, secrets.address_engine);
-const xsigma = new web3.eth.Contract(artifacts_xsigma.abi, secrets.address_xsigma);
 
 let accounts = [];
 
 
 const auctionSetWinner = async (chain_id) => {
 	try {
+		const engine = new web3.eth.Contract(artifacts_engine.abi, secrets.address_engine);
+		const xsigma = new web3.eth.Contract(artifacts_xsigma.abi, secrets.address_xsigma);
 		const account = await getMainAccount();
 		const auction_id = await engine.methods.getAuctionId(chain_id).call();
 		const info = await engine.methods.automaticSetWinner(auction_id).send({
@@ -34,6 +34,8 @@ const auctionSetWinner = async (chain_id) => {
 
 
 const getMainAccount = async () => {
+	const engine = new web3.eth.Contract(artifacts_engine.abi, secrets.address_engine);
+	const xsigma = new web3.eth.Contract(artifacts_xsigma.abi, secrets.address_xsigma);
 	if (!accounts.length) {
 		accounts = await web3.eth.getAccounts();
 	}
@@ -43,6 +45,8 @@ const getMainAccount = async () => {
 
 
 const checkActualOffer = async (db_offer, db_token, cancel = false) => {
+	const engine = new web3.eth.Contract(artifacts_engine.abi, secrets.address_engine);
+	const xsigma = new web3.eth.Contract(artifacts_xsigma.abi, secrets.address_xsigma);
 	var chain_id = db_token.chain_id;
 	let owner = await xsigma.ownerOf(chain_id);
 	let offer = await engine.offers(chain_id);
@@ -67,6 +71,8 @@ const checkActualOffer = async (db_offer, db_token, cancel = false) => {
 
 
 const getLastBid = async (chain_id) => {
+	const engine = new web3.eth.Contract(artifacts_engine.abi, secrets.address_engine);
+	const xsigma = new web3.eth.Contract(artifacts_xsigma.abi, secrets.address_xsigma);
 	const auction_id = await engine.methods.getAuctionId(chain_id).call();
 	const auction = await engine.methods.auctions(auction_id).call();
 	const last_bid = auction.currentBidOwner;

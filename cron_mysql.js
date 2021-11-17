@@ -22,11 +22,12 @@ const closeExpiredOffers = async () => {
 	var offers = await Offers.findAll({
 		where: { 
 			status: "pending", 
-			date_end: { $lte: new Date() },
+			date_end: { 
+				[Op.lte]: new Date()
+			},
 			type: ["both", "auction"]
 		} 
 	});
-	
 	if (!offers && !offers.length)
 		return false;
 	
@@ -34,11 +35,10 @@ const closeExpiredOffers = async () => {
 		var bids = offer.bids;
 		if (bids.length) {
 			var user_info = bids[0];
-			
 			await Activities.create({
 				type: "purchased",
 				offerId: offer._id,
-				tokenId: offer.token,
+				tokenId: offer.tokenId,
 				userId: user_info.user,
 				price: user_info.price
 			});
@@ -48,12 +48,13 @@ const closeExpiredOffers = async () => {
 			offer.purchase_type = "auction";
 			
 			var token = await Tokens.findOne({
-				where: {_id: offer.token}
+				where: {_id: offer.tokenId}
 			});
 			token.owners.unshift({
 				user: user_info.user,
 				price: user_info.price
 			});
+			console.log(token);
 			await token.save();
 			await blockchain.auctionSetWinner(token.chain_id);
 			await offers_controller.giveRoyalties(offer, token);
@@ -63,11 +64,10 @@ const closeExpiredOffers = async () => {
 			offer.status = "expired";
 			console.log(`Auction ${offer._id} has expired`.red);
 		}
-
 		await Offers.update(
 			offer,
 			{
-				where: {_id: offer.id}
+				where: {_id: offer._id}
 			}
 		);
 	}
