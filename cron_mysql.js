@@ -22,9 +22,7 @@ const closeExpiredOffers = async () => {
 	var offers = await Offers.findAll({
 		where: { 
 			status: "pending", 
-			date_end: { 
-				[Op.lte]: new Date() 
-			}, 
+			date_end: { $lte: new Date() },
 			type: ["both", "auction"]
 		} 
 	});
