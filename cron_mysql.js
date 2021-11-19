@@ -25,9 +25,12 @@ const closeExpiredOffers = async () => {
 			date_end: { 
 				[Op.lte]: new Date()
 			},
-			type: ["both", "auction"]
+			type: {
+				[Op.eq]: 'auction'
+			}
 		} 
 	});
+
 	if (!offers && !offers.length)
 		return false;
 	
@@ -35,13 +38,6 @@ const closeExpiredOffers = async () => {
 		var bids = offer.bids;
 		if (bids.length) {
 			var user_info = bids[0];
-			await Activities.create({
-				type: "purchased",
-				offerId: offer._id,
-				tokenId: offer.tokenId,
-				userId: user_info.user,
-				price: user_info.price
-			});
 
 			offer.buyer = user_info.user;
 			offer.status = "completed";
@@ -54,14 +50,29 @@ const closeExpiredOffers = async () => {
 				user: user_info.user,
 				price: user_info.price
 			});
-			console.log(token);
 			await token.save();
+			await Tokens.update(
+				{
+					owners: token.owners
+				},
+				{
+					where: {_id: token._id}
+				}
+			);
 			await blockchain.auctionSetWinner(token.chain_id);
 			await offers_controller.giveRoyalties(offer, token);
+			await Activities.create({
+				type: "purchased",
+				offerId: offer._id,
+				tokenId: offer.tokenId,
+				userId: user_info.user,
+				price: user_info.price
+			});
+			await offer.save();
 			console.log(`Auction ${offer._id} has completed | Winner ${user_info.user}`.green);
-		}
-		else {
+		} else {
 			offer.status = "expired";
+			await offer.save();
 			console.log(`Auction ${offer._id} has expired`.red);
 		}
 		await Offers.update(

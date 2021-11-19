@@ -672,12 +672,12 @@ const Controller = {
 
 		user.royalties = new_royalties;
 		await user.save();
-		// var update = await Users.update(
-		// 	user,
-		// 	{
-		// 		where: {_id: user._id}
-		// 	}
-		// );
+		await Users.update(
+			user,
+			{
+				where: {_id: user._id}
+			}
+		);
 	}
 };
 
