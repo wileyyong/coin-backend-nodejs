@@ -268,7 +268,7 @@ const Controller = {
 			res.send({
 				name: token.name,
 				description: token.description,
-				attributes: token.attributes,
+				attributes: JSON.parse(token.attributes),
 				image: token.thumbnail || token.media,
 			});
 		}
