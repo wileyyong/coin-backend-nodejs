@@ -241,94 +241,98 @@ const Controller = {
 						}
 					]
 				});
-				
-				offers = offers.map((offer) => offer.get({ plain: true}));
-				offers = await Promise.all(offers.map(async (offer) => {
-					var bids = offer.bids;
-					bids = await Promise.all(bids?.map(async (bid) => {
-						var user = await Users.findOne({
-							where: {_id: bid.user}
-						});
-						return {
-							...bid,
-							user
-						};
-					}));
-					return {
-						...offer,
-						bids: bids ? bids : []
-					};
-				}));
-				offers = await Promise.all(offers.map(async (offer) => {
-					if (offer.token) {
-						var owners = offer.token.owners;
-						owners = await Promise.all(owners?.map(async(owner) => {
+
+				if (offers.length > 0) {
+					offers = offers.map((offer) => offer.get({ plain: true}));
+					offers = await Promise.all(offers.map(async (offer) => {
+						var bids = offer.bids;
+						bids = await Promise.all(bids?.map(async (bid) => {
 							var user = await Users.findOne({
-								where: {_id: owner.user}
+								where: {_id: bid.user}
 							});
 							return {
-								...owner,
+								...bid,
 								user
+							};
+						}));
+						return {
+							...offer,
+							bids: bids ? bids : []
+						};
+					}));
+					offers = await Promise.all(offers.map(async (offer) => {
+						if (offer.token) {
+							var owners = offer.token.owners;
+							owners = await Promise.all(owners?.map(async(owner) => {
+								var user = await Users.findOne({
+									where: {_id: owner.user}
+								});
+								return {
+									...owner,
+									user
+								}
+							}));
+							var token = {
+								...offer.token,
+								owners: owners ? owners : [],
 							}
-						}));
-						var token = {
-							...offer.token,
-							owners: owners ? owners : [],
+							return {
+								...offer,
+								token
+							};
 						}
-						return {
-							...offer,
-							token
-						};
-					}
-					return offer;
-				}));
-				offers = await Promise.all(offers.map(async (offer) => {
-					if (offer.token) {
-						var cats = await Promise.all(offer.token.categories?.map(async (id) => {
-							var category = await Categories.findOne({
-								where: {_id: id}
-							});
-							return category;
-						}));
-						var token = {
-							...offer.token,
-							categories: cats,
+						return offer;
+					}));
+					offers = await Promise.all(offers.map(async (offer) => {
+						if (offer.token) {
+							var cats = await Promise.all(offer.token.categories?.map(async (id) => {
+								var category = await Categories.findOne({
+									where: {_id: id}
+								});
+								return category;
+							}));
+							var token = {
+								...offer.token,
+								categories: cats,
+							}
+							return {
+								...offer,
+								token
+							};
 						}
-						return {
-							...offer,
-							token
-						};
+						return offer;
+					}));
+					helpers.calcLikesArray(offers, req.user);
+
+					if (name) {
+						offers = offers.filter(auction => auction.token.name.toLowerCase().includes(name.toLowerCase()));
 					}
-					return offer;
-				}));
-				helpers.calcLikesArray(offers, req.user);
+					
+					if (sort_type == "costly") {
+						offers.sort((a, b) => {
+							var price1 = helpers.getOfferMinPrice(a);
+							var price2 = helpers.getOfferMinPrice(b);
 
-				if (name) {
-					offers = offers.filter(auction => auction.token.name.toLowerCase().includes(name.toLowerCase()));
-				}
-				
-				if (sort_type == "costly") {
-					offers.sort((a, b) => {
-						var price1 = helpers.getOfferMinPrice(a);
-						var price2 = helpers.getOfferMinPrice(b);
+							return price2 - price1;
+						});
+					}
+					if (sort_type == "cheap") {
+						offers.sort((a, b) => {
+							var price1 = helpers.getOfferMinPrice(a);
+							var price2 = helpers.getOfferMinPrice(b);
 
-						return price2 - price1;
-					});
+							return price1 - price2;
+						});
+					}
+					if (sort_type == "liked") {
+						offers.sort((a, b) => {
+							return b.token.likes - a.token.likes;
+						});
+					}
+					res.send({offers, ...pagination});
+				} else {
+					res.send({offers: [], ...pagination});
 				}
-				if (sort_type == "cheap") {
-					offers.sort((a, b) => {
-						var price1 = helpers.getOfferMinPrice(a);
-						var price2 = helpers.getOfferMinPrice(b);
-
-						return price1 - price2;
-					});
-				}
-				if (sort_type == "liked") {
-					offers.sort((a, b) => {
-						return b.token.likes - a.token.likes;
-					});
-				}
-				res.send({offers, ...pagination});
 			}
 		}
 		catch(error) {
