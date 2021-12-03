@@ -270,7 +270,6 @@ const Controller = {
 				description: token.description,
 				attributes: token.attributes,
 				image: token.thumbnail || token.media,
-				properties: token.properties
 			});
 		}
 		catch(error) {
@@ -281,7 +280,7 @@ const Controller = {
 
 
 	async createToken(req, res) {
-		var { name, description, properties, collection, categories, royalties, locked, offchain } = helpers.parseFormData(req.body);
+		var { name, description, attributes, collection, categories, royalties, locked, offchain } = helpers.parseFormData(req.body);
 		if (!req.files || !req.files.media) 
 			return res.status(422).send({error: "Image or other media is required"});
 
@@ -309,7 +308,7 @@ const Controller = {
 
 			if (locked) token.locked = locked;
 			if (description) token.description = description;
-			if (properties) token.properties = properties;
+			if (attributes) token.attributes = attributes;
 			if (collection && !helpers.isNot(collection)) token.collectionsId = collection;
 			await token.save();
 			res.send({message: "Token created", token, link: `/api/tokens/${token._id}.json`});

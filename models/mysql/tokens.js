@@ -12,7 +12,6 @@ module.exports = (sequelize) => {
 			allowNull: false
 		},
 		description: DataTypes.STRING,
-		properties: DataTypes.JSON,
 		media: {
 			type: DataTypes.STRING,
 			defaultValue: "/media/html.jpg"

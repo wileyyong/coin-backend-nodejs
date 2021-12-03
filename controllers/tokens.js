@@ -114,8 +114,7 @@ const Controller = {
 				name: token.name,
 				description: token.description,
 				attributes: token.attributes,
-				image_url: token.thumbnail || token.media,
-				properties: token.properties
+				image_url: token.thumbnail || token.media
 			});
 		}
 		catch(error) {
@@ -126,7 +125,7 @@ const Controller = {
 
 
 	async createToken(req, res) {
-		var { name, description, properties, collection, categories, royalties, locked, offchain } = helpers.parseFormData(req.body);
+		var { name, description, attributes, collection, categories, royalties, locked, offchain } = helpers.parseFormData(req.body);
 
 		var token_id = mongoose.Types.ObjectId();
 
@@ -154,7 +153,7 @@ const Controller = {
 
 			if (locked) token_data.locked = locked;
 			if (description) token_data.description = description;
-			if (properties) token_data.properties = properties;
+			if (attributes) token_data.attributes = attributes;
 			if (collection && !helpers.isNot(collection)) token_data.collections = collection;
 
 			var token = await Tokens.create(token_data);

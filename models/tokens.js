@@ -10,7 +10,6 @@ const Tokens = new mongoose.Schema({
 		required: true
 	},
 	description: String,
-	properties: String,
 	media: {
 		type: String,
 		default: "/media/html.jpg"
