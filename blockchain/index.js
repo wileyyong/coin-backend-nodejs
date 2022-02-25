@@ -16,8 +16,8 @@ const web3Matic = new Web3(maticProvider);
 let accounts = [];
 const engine = new web3.eth.Contract(artifacts_engine.abi, secrets.address_engine);
 const puml = new web3.eth.Contract(artifacts_puml.abi, secrets.address_puml);
-const engineMatic = new web3.eth.Contract(artifacts_engine.abi, secrets.address_matic_engine);
-const pumlMatic = new web3.eth.Contract(artifacts_puml.abi, secrets.address_matic_puml);
+const engineMatic = new web3Matic.eth.Contract(artifacts_engine.abi, secrets.address_matic_engine);
+const pumlMatic = new web3Matic.eth.Contract(artifacts_puml.abi, secrets.address_matic_puml);
 
 const auctionSetWinner = async (chain_id, blockchain) => {
 	
