@@ -39,7 +39,7 @@ const closeExpiredOffers = async () => {
 		if (bids.length) {
 			var user_info = bids[0];
 
-			offer.buyer = user_info.user;
+			offer.buyerId = user_info.user;
 			offer.status = "completed";
 			offer.purchase_type = "auction";
 			
@@ -59,7 +59,7 @@ const closeExpiredOffers = async () => {
 					where: {_id: token._id}
 				}
 			);
-			await blockchain.auctionSetWinner(token.chain_id);
+			await blockchain.auctionSetWinner(token.chain_id, token.blockchain);
 			await offers_controller.giveRoyalties(offer, token);
 			await Activities.create({
 				type: "purchased",

@@ -41,7 +41,7 @@ const closeExpiredOffers = async () => {
 				price: user_info.price
 			});
 
-			offer.buyer = user_info.user;
+			offer.buyerId = user_info.user;
 			offer.status = "completed";
 			offer.purchase_type = "auction";
 			
@@ -52,7 +52,7 @@ const closeExpiredOffers = async () => {
 			});
 
 			await token.save();
-			await blockchain.auctionSetWinner(token.chain_id);
+			await blockchain.auctionSetWinner(token.chain_id, token.blockchain);
 			await offers_controller.giveRoyalties(offer, token);
 			console.log(`Auction ${offer._id} has completed | Winner ${user_info.user}`.green);
 		}
