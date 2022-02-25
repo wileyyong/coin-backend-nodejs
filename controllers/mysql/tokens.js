@@ -280,7 +280,7 @@ const Controller = {
 
 
 	async createToken(req, res) {
-		var { name, description, attributes, collection, categories, royalties, locked, offchain } = helpers.parseFormData(req.body);
+		var { name, description, attributes, collection, categories, royalties, locked, offchain, blockchain } = helpers.parseFormData(req.body);
 		if (!req.files || !req.files.media) 
 			return res.status(422).send({error: "Image or other media is required"});
 
@@ -292,12 +292,12 @@ const Controller = {
 				owners: [{user: req.user.id}],
 				creatorId: req.user.id,
 				offchain: offchain || false,
+				blockchain: blockchain || "ETH"
 			};
 			var token = await Tokens.create(token_data);
 			var media = await helpers.uploadToIPFS(req.files.media.data, token._id);
 			if (!media) media = await helpers.uploadFile(req.files.media, token._id, "content/media");
 			var media_type = req.files.media.name.split(".").pop().toLowerCase();
-
 			// var set = {};
 			token.media = media;
 			token.media_type = media_type;
@@ -352,6 +352,7 @@ const Controller = {
 
 	async deleteToken(req, res) {
 		try {
+			
 			var _id = req.params.id;
 
 			var token = await Tokens.findOne({
@@ -360,7 +361,7 @@ const Controller = {
 			if (!token) 
 				return res.status(404).send({error: "Token not found"});
 			
-			if (req.user.id != token.creatorId) 
+			if (req.params.user != token.creatorId) 
 				return res.status(403).send({error: "Forbidden"});
 			
 			await Tokens.destroy({

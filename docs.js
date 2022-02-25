@@ -186,6 +186,12 @@ module.exports = {
 					name: "thumbnail",
 					type: "file",
 					description: "Thumbnail image for token"
+				},{
+					in: "formData",
+					name: "blockchain",
+					type: "string",
+					description: "Blockchain",
+					enum: ["ETH", "MATIC" ]
 				}],
 				responses: {
 					200: {description: "Success. Gives out new `token`, `offer` and `link` to JSON"},

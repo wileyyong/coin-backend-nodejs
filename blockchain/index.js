@@ -3,7 +3,7 @@ const contract = require('truffle-contract');
 const colors = require("colors");
 
 const artifacts_engine = require('./Engine.json');
-const artifacts_xsigma = require('./PUML721.json');
+const artifacts_puml = require('./PumlNFT.json');
 const secrets = require('./secrets.json');
 
 const HDWalletProvider = require("@truffle/hdwallet-provider");
@@ -13,7 +13,7 @@ const web3 = new Web3(provider);
 
 let accounts = [];
 const engine = new web3.eth.Contract(artifacts_engine.abi, secrets.address_engine);
-const xsigma = new web3.eth.Contract(artifacts_xsigma.abi, secrets.address_xsigma);
+const puml = new web3.eth.Contract(artifacts_puml.abi, secrets.address_puml);
 
 const auctionSetWinner = async (chain_id) => {
 	try {
@@ -43,7 +43,7 @@ const getMainAccount = async () => {
 
 const checkActualOffer = async (db_offer, db_token, cancel = false) => {
 	var chain_id = db_token.chain_id;
-	let owner = await xsigma.ownerOf(chain_id);
+	let owner = await puml.ownerOf(chain_id);
 	let offer = await engine.offers(chain_id);
 
 	if (owner != offer.creator) {
@@ -76,7 +76,7 @@ const getLastBid = async (chain_id) => {
 
 
 const checkOwner = async (chain_id) => {
-	let owner = await xsigma.methods.ownerOf(chain_id).call();
+	let owner = await puml.methods.ownerOf(chain_id).call();
 	let offer = await engine.methods.offers(chain_id).call();
 
 	return (owner == offer.creator);

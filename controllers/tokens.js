@@ -125,7 +125,7 @@ const Controller = {
 
 
 	async createToken(req, res) {
-		var { name, description, attributes, collection, categories, royalties, locked, offchain } = helpers.parseFormData(req.body);
+		var { name, description, attributes, collection, categories, royalties, locked, offchain, blockchain } = helpers.parseFormData(req.body);
 
 		var token_id = mongoose.Types.ObjectId();
 
@@ -143,7 +143,8 @@ const Controller = {
 				owners: [{user: req.user.id}],
 				creator: req.user.id,
 				offchain: offchain || false,
-				media
+				media,
+				blockchain: blockchain || "ETH"
 			};
 
 			if (req.files.thumbnail) {

@@ -71,6 +71,10 @@ const Tokens = new mongoose.Schema({
 	date_resale: {
 		type: Date,
 		default: () => Date.now()
+	},
+	blockchain: {
+		type: String,
+		default: "ETH"
 	}
 }, {
 	versionKey: false

@@ -103,6 +103,10 @@ module.exports = (sequelize) => {
 		date_resale: {
 			type: DataTypes.DATE,
 			defaultValue: DataTypes.NOW
+		},
+		blockchain: {
+			type: DataTypes.STRING,
+			defaultValue: "ETH"
 		}
 	},
 	{
