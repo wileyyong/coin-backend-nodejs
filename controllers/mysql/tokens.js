@@ -265,33 +265,12 @@ const Controller = {
 
 			if (!token) 
 				return res.status(404).send({error: "Token not found"});
-
-			var collection = await Collections.findOne({
-				where: {_id: token.collectionsId}
+			res.send({
+				name: token.name,
+				description: token.description,
+				attributes: JSON.parse(token.attributes),
+				image: token.thumbnail || token.media,
 			});
-
-			if (!collection) {
-				res.send({
-					name: token.name,
-					description: token.description,
-					attributes: JSON.parse(token.attributes),
-					image: token.thumbnail || token.media,
-				});
-			} else {
-				res.send({
-					name: token.name,
-					description: token.description,
-					attributes: JSON.parse(token.attributes),
-					image: token.thumbnail || token.media,
-					collection: collection
-				});
-			}
-			// res.send({
-			// 	name: token.name,
-			// 	description: token.description,
-			// 	attributes: JSON.parse(token.attributes),
-			// 	image: token.thumbnail || token.media,
-			// });
 		}
 		catch(error) {
 			console.log(error);
