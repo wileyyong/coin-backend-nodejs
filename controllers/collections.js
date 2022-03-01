@@ -141,15 +141,15 @@ const Controller = {
 
 			if (!name) return res.status(422).send({error: "Not all fields has filled"});
 
-			if (req.files) {
-				if (req.files.image) {
-					var image = await helpers.uploadFile(req.files.image, id, "content/collection");
-					collection.image = image;
-				}
-				if (req.files.cover) {
-					var cover = await helpers.uploadFile(req.files.cover, id, "content/cover");
-					collection.cover = cover;
-				}
+			if (req.files.image) {
+				var image = await helpers.uploadToIPFS(req.files.image.data, collection._id);
+				if (!image) image = await helpers.uploadFile(req.files.image, collection._id, "content/collection");
+				collection.image = image;
+			}
+			if (req.files.cover) {
+				var cover = await helpers.uploadToIPFS(req.files.cover.data, collection._id);
+				if (!cover) cover = await helpers.uploadFile(req.files.cover, collection._id, "content/cover");
+				collection.cover = cover;
 			}
 
 			var collection = await Collections.create(collection);
