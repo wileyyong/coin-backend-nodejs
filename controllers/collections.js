@@ -134,10 +134,10 @@ const Controller = {
 
 	async createCollection(req, res) {
 		try {
-			var { name, symbol, description, short } = req.body;
+			var { name, symbol, description, short, contract_address, engine_address, network } = req.body;
 			var creator = req.user.id;
 			var id = mongoose.Types.ObjectId();
-			var collection = {_id: id, name, creator, symbol, description, short};
+			var collection = {_id: id, name, creator, symbol, description, short, contract_address, engine_address, network};
 
 			if (!name) return res.status(422).send({error: "Not all fields has filled"});
 

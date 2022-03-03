@@ -15,6 +15,12 @@ const Collections = new mongoose.Schema({
 		ref: "users",
 		required: true
 	},
+	contract_address: String,
+	engine_address: String,
+	network: {
+		type: String,
+		default: "ETH"
+	},
 	date_create: {
 		type: Date,
 		default: () => Date.now()
