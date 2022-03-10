@@ -57,6 +57,22 @@ const getMainAccount = async (blockchain) => {
 	return accounts[0];
 };
 
+const buyToken = async (currentAddress, tokenId, price) => {
+	try {
+		let result = await engine.methods.buy(tokenId).send({
+			from: currentAddress,
+			value: web3.utils.toWei('' + price)
+		})
+		if(result.status === true) {
+			return { success: true , transactionHash: result.transactionHash };
+		}
+		return { success: false, error: 'Failed to buy this item directly!' };
+	}
+	catch(error) {
+		return { success: false, error: error };		
+	}
+};
+
 
 // const checkActualOffer = async (db_offer, db_token, cancel = false) => {
 // 	var chain_id = db_token.chain_id;
@@ -142,6 +158,7 @@ const getMainAccount = async (blockchain) => {
 module.exports = {
 	auctionSetWinner,
 	getMainAccount,
+	buyToken
 	// checkActualOffer,
 	// checkOwner,
 	// checkBids,

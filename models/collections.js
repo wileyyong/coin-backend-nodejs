@@ -17,10 +17,7 @@ const Collections = new mongoose.Schema({
 	},
 	contract_address: String,
 	engine_address: String,
-	network: {
-		type: String,
-		default: "ETH"
-	},
+	network: Number,
 	date_create: {
 		type: Date,
 		default: () => Date.now()

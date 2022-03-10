@@ -1,6 +1,7 @@
 const { Collections, Tokens, Offers, Activities, Users, Categories } = require("../../models/mysql/sequelizer");
 const helpers = require("../../helpers_mysql");
 const { Op } = require("sequelize");
+const blockchain = require("../../blockchain");
 
 const Controller = {
 	async getAllTokens(req, res) {
@@ -442,6 +443,17 @@ const Controller = {
 		}
 		catch(error) {
 			res.status(500).send({error: "Server error"});
+		}
+	},
+
+	async buyToken(req, res) {
+		var { currentAddress, tokenId, price } = helpers.parseFormData(req.body);
+		let buyResult = await blockchain.buyToken(currentAddress, tokenId, price);
+		if (buyResult.success && buyResult.transactionHash) {
+			res.send({success: true});
+		} else {
+			console.log("buyTokenErr", buyResult.error);
+			res.send({success: false});
 		}
 	}
 };

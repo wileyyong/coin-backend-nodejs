@@ -23,10 +23,7 @@ module.exports = (sequelize) => {
 		},
 		contract_address: DataTypes.STRING,
 		engine_address: DataTypes.STRING,
-		network: {
-			type: DataTypes.STRING,
-			defaultValue: "ETH"
-		},
+		network: DataTypes.INTEGER,
 		date_create: {
 			type: DataTypes.DATE,
 			defaultValue: DataTypes.NOW
