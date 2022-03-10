@@ -4,6 +4,7 @@ const colors = require("colors");
 
 const artifacts_engine = require('./Engine.json');
 const artifacts_puml = require('./PumlNFT.json');
+const artifacts_erc20 = require('./IERC20.json');
 const secrets = require('./secrets.json');
 
 const HDWalletProvider = require("@truffle/hdwallet-provider");
@@ -19,19 +20,29 @@ const puml = new web3.eth.Contract(artifacts_puml.abi, secrets.address_puml);
 const engineMatic = new web3Matic.eth.Contract(artifacts_engine.abi, secrets.address_matic_engine);
 const pumlMatic = new web3Matic.eth.Contract(artifacts_puml.abi, secrets.address_matic_puml);
 
-const auctionSetWinner = async (chain_id, blockchain) => {
+const auctionSetWinner = async (token, win_bid, creator) => {
 	
 	try {
 		const account = await getMainAccount(blockchain);
-		if (blockchain === "ETH") {
-			const auction_id = await engine.methods.getAuctionId(chain_id).call();
+		if (token.blockchain === "ETH") {
+			const auction_id = await engine.methods.getAuctionId(token.chain_id).call();
 			const info = await engine.methods.automaticSetWinner(auction_id).send({
 				from: account
 			});
-		} else {
-			const auction_id = await engineMatic.methods.getAuctionId(chain_id).call();
+		} else if (token.blockchain === "MATIC") {
+			const auction_id = await engineMatic.methods.getAuctionId(token.chain_id).call();
 			const info = await engineMatic.methods.automaticSetWinner(auction_id).send({
 				from: account
+			});
+		} else {
+			const auction_id = await engine.methods.getAuctionId(token.chain_id).call();
+			const info = await engine.methods.automaticSetWinner(auction_id).send({
+				from: account
+			});
+			const winner = await engine.methods.getWinner(auction_id).call();
+			const pumlx = new web3.eth.Contract(artifacts_erc20.abi, secrets.address_pumlx);
+			pumlx.methods.transfer(creator, win_bid).send({
+				from: winner
 			});
 		}
 		
@@ -57,16 +68,34 @@ const getMainAccount = async (blockchain) => {
 	return accounts[0];
 };
 
-const buyToken = async (currentAddress, tokenId, price) => {
+const buyToken = async (tokenId, price) => {
+	const account = await getMainAccount("ETH");
 	try {
 		let result = await engine.methods.buy(tokenId).send({
-			from: currentAddress,
+			from: account,
 			value: web3.utils.toWei('' + price)
 		})
 		if(result.status === true) {
 			return { success: true , transactionHash: result.transactionHash };
 		}
 		return { success: false, error: 'Failed to buy this item directly!' };
+	}
+	catch(error) {
+		return { success: false, error: error };		
+	}
+};
+
+const bidToken = async (tokenId, price) => {
+	const account = await getMainAccount("ETH");
+	try {
+		let result = await engine.methods.bid(tokenId).send({
+			from: account,
+			value: web3.utils.toWei('' + price)
+		})
+		if(result.status === true) {
+			return { success: true , transactionHash: result.transactionHash };
+		}
+		return { success: false, error: 'Failed to bid this item directly!' };
 	}
 	catch(error) {
 		return { success: false, error: error };		
@@ -158,7 +187,8 @@ const buyToken = async (currentAddress, tokenId, price) => {
 module.exports = {
 	auctionSetWinner,
 	getMainAccount,
-	buyToken
+	buyToken,
+	bidToken
 	// checkActualOffer,
 	// checkOwner,
 	// checkBids,

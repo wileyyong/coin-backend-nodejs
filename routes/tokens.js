@@ -20,5 +20,6 @@ router.get("/:id/unlike", tokenizer.tokenAccess, tokens.toggleLike);
 router.post("/", tokenizer.tokenAccess, filer, tokens.createToken);
 router.delete("/:id/:user", tokens.deleteToken);
 router.post("/buyToken", tokenizer.tokenAccess, filer, tokens.buyToken);
+router.post("/bidToken", tokenizer.tokenAccess, filer, tokens.bidToken);
 
 module.exports = router;

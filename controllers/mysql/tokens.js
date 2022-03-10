@@ -447,12 +447,23 @@ const Controller = {
 	},
 
 	async buyToken(req, res) {
-		var { currentAddress, tokenId, price } = helpers.parseFormData(req.body);
-		let buyResult = await blockchain.buyToken(currentAddress, tokenId, price);
+		var { tokenId, price } = helpers.parseFormData(req.body);
+		let buyResult = await blockchain.buyToken(tokenId, price);
 		if (buyResult.success && buyResult.transactionHash) {
 			res.send({success: true});
 		} else {
 			console.log("buyTokenErr", buyResult.error);
+			res.send({success: false});
+		}
+	},
+
+	async bidToken(req, res) {
+		var { tokenId, price } = helpers.parseFormData(req.body);
+		let bidResult = await blockchain.bidToken(tokenId, price);
+		if (bidResult.success && bidResult.transactionHash) {
+			res.send({success: true});
+		} else {
+			console.log("bidTokenErr", bidResult.error);
 			res.send({success: false});
 		}
 	}
