@@ -65,14 +65,16 @@ const getMainAccount = async (blockchain) => {
 		}
 	}
 
+	console.log("accounts", accounts);
+
 	return accounts[0];
 };
 
-const buyToken = async (tokenId, price) => {
-	const account = await getMainAccount("ETH");
+const buyToken = async (tokenId, price, buyerAddress) => {
+	const account = await getMainAccount("ETH");	
 	try {
 		let result = await engine.methods.buy(tokenId).send({
-			from: account,
+			from: buyerAddress,
 			value: web3.utils.toWei('' + price)
 		})
 		if(result.status === true) {
@@ -81,15 +83,15 @@ const buyToken = async (tokenId, price) => {
 		return { success: false, error: 'Failed to buy this item directly!' };
 	}
 	catch(error) {
-		return { success: false, error: error };		
+		return { success: false, error: error };
 	}
 };
 
-const bidToken = async (tokenId, price) => {
+const bidToken = async (tokenId, price, bidderAddress) => {
 	const account = await getMainAccount("ETH");
 	try {
 		let result = await engine.methods.bid(tokenId).send({
-			from: account,
+			from: bidderAddress,
 			value: web3.utils.toWei('' + price)
 		})
 		if(result.status === true) {
