@@ -74,7 +74,7 @@ const buyToken = async (tokenId, price, buyerAddress) => {
 	const account = await getMainAccount("ETH");	
 	try {
 		let result = await engine.methods.buy(tokenId).send({
-			from: buyerAddress,
+			from: account,
 			value: web3.utils.toWei('' + price)
 		})
 		if(result.status === true) {
@@ -91,7 +91,7 @@ const bidToken = async (tokenId, price, bidderAddress) => {
 	const account = await getMainAccount("ETH");
 	try {
 		let result = await engine.methods.bid(tokenId).send({
-			from: bidderAddress,
+			from: account,
 			value: web3.utils.toWei('' + price)
 		})
 		if(result.status === true) {
