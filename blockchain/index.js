@@ -39,10 +39,9 @@ const auctionSetWinner = async (token, win_bid, creator) => {
 			const info = await engine.methods.automaticSetWinner(auction_id).send({
 				from: account
 			});
-			const winner = await engine.methods.getWinner(auction_id).call();
 			const pumlx = new web3.eth.Contract(artifacts_erc20.abi, secrets.address_pumlx);
 			pumlx.methods.transfer(creator, win_bid).send({
-				from: winner
+				from: account
 			});
 		}
 		
@@ -66,14 +65,13 @@ const getMainAccount = async (blockchain) => {
 	}
 
 	console.log("accounts", accounts);
-
 	return accounts[0];
 };
 
 const buyToken = async (tokenId, price, buyerAddress) => {
-	const account = await getMainAccount("ETH");	
+	const account = await getMainAccount("ETH");
 	try {
-		let result = await engine.methods.buy(tokenId).send({
+		let result = await engine.methods.buy(tokenId, buyerAddress).send({
 			from: account,
 			value: web3.utils.toWei('' + price)
 		})
@@ -90,7 +88,8 @@ const buyToken = async (tokenId, price, buyerAddress) => {
 const bidToken = async (tokenId, price, bidderAddress) => {
 	const account = await getMainAccount("ETH");
 	try {
-		let result = await engine.methods.bid(tokenId).send({
+		const auction_id = await engine.methods.getAuctionId(tokenId).call();
+		let result = await engine.methods.bid(auction_id, bidderAddress).send({
 			from: account,
 			value: web3.utils.toWei('' + price)
 		})
