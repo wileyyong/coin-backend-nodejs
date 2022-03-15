@@ -15,32 +15,32 @@ const web3 = new Web3(provider);
 const web3Matic = new Web3(maticProvider);
 
 let accounts = [];
-const engine = new web3.eth.Contract(artifacts_engine.abi, secrets.address_engine);
-const puml = new web3.eth.Contract(artifacts_puml.abi, secrets.address_puml);
-const engineMatic = new web3Matic.eth.Contract(artifacts_engine.abi, secrets.address_matic_engine);
-const pumlMatic = new web3Matic.eth.Contract(artifacts_puml.abi, secrets.address_matic_puml);
+// const engine = new web3.eth.Contract(artifacts_engine.abi, secrets.address_engine);
+// const puml = new web3.eth.Contract(artifacts_puml.abi, secrets.address_puml);
+// const engineMatic = new web3Matic.eth.Contract(artifacts_engine.abi, secrets.address_matic_engine);
+// const pumlMatic = new web3Matic.eth.Contract(artifacts_puml.abi, secrets.address_matic_puml);
 
-const auctionSetWinner = async (token, win_bid, creator) => {
-	
+const auctionSetWinner = async (token, winBidAmount, creator, engineAddress) => {
+	const _engineAddress = engineAddress !== '' ? engineAddress : secrets.address_engine;
 	try {
 		const account = await getMainAccount(blockchain);
 		if (token.blockchain === "ETH") {
-			const auction_id = await engine.methods.getAuctionId(token.chain_id).call();
-			const info = await engine.methods.automaticSetWinner(auction_id).send({
+			const auction_id = await new web3.eth.Contract(artifacts_engine.abi, _engineAddress).methods.getAuctionId(token.chain_id).call();
+			const info = await new web3.eth.Contract(artifacts_engine.abi, _engineAddress).methods.automaticSetWinner(auction_id).send({
 				from: account
 			});
 		} else if (token.blockchain === "MATIC") {
-			const auction_id = await engineMatic.methods.getAuctionId(token.chain_id).call();
-			const info = await engineMatic.methods.automaticSetWinner(auction_id).send({
+			const auction_id = await new web3Matic.eth.Contract(artifacts_engine.abi, _engineAddress).methods.getAuctionId(token.chain_id).call();
+			const info = await new web3Matic.eth.Contract(artifacts_engine.abi, _engineAddress).methods.automaticSetWinner(auction_id).send({
 				from: account
 			});
 		} else {
-			const auction_id = await engine.methods.getAuctionId(token.chain_id).call();
-			const info = await engine.methods.automaticSetWinner(auction_id).send({
+			const auction_id = await new web3.eth.Contract(artifacts_engine.abi, _engineAddress).methods.getAuctionId(token.chain_id).call();
+			const info = await new web3.eth.Contract(artifacts_engine.abi, _engineAddress).methods.automaticSetWinner(auction_id).send({
 				from: account
 			});
-			const pumlx = new web3.eth.Contract(artifacts_erc20.abi, secrets.address_pumlx);
-			pumlx.methods.transfer(creator, win_bid).send({
+			const pumlx = await new web3.eth.Contract(artifacts_erc20.abi, secrets.address_pumlx);
+			pumlx.methods.transfer(creator, winBidAmount).send({
 				from: account
 			});
 		}
@@ -68,10 +68,11 @@ const getMainAccount = async (blockchain) => {
 	return accounts[0];
 };
 
-const buyToken = async (tokenId, price, buyerAddress) => {
+const buyToken = async (tokenId, price, buyerAddress, engineAddress) => {
 	const account = await getMainAccount("ETH");
+	const _engineAddress = engineAddress !== '' ? engineAddress : secrets.address_engine;
 	try {
-		let result = await engine.methods.buy(tokenId, buyerAddress).send({
+		let result = await new web3.eth.Contract(artifacts_engine.abi, _engineAddress).methods.buy(tokenId, buyerAddress).send({
 			from: account,
 			value: web3.utils.toWei('' + price)
 		})
@@ -85,11 +86,12 @@ const buyToken = async (tokenId, price, buyerAddress) => {
 	}
 };
 
-const bidToken = async (tokenId, price, bidderAddress) => {
+const bidToken = async (tokenId, price, bidderAddress, engineAddress) => {
 	const account = await getMainAccount("ETH");
+	const _engineAddress = engineAddress !== '' ? engineAddress : secrets.address_engine;
 	try {
-		const auction_id = await engine.methods.getAuctionId(tokenId).call();
-		let result = await engine.methods.bid(auction_id, bidderAddress).send({
+		const auction_id = await new web3.eth.Contract(artifacts_engine.abi, _engineAddress).methods.getAuctionId(tokenId).call();
+		let result = await new web3.eth.Contract(artifacts_engine.abi, _engineAddress).methods.bid(auction_id, bidderAddress).send({
 			from: account,
 			value: web3.utils.toWei('' + price)
 		})

@@ -1,5 +1,5 @@
 const cron = require("node-cron");
-const { Tokens, Offers, Activities, Users, } = require('./models/mysql/sequelizer');
+const { Tokens, Offers, Activities, Users, Collections } = require('./models/mysql/sequelizer');
 const offers_controller = require("./controllers/mysql/offers");
 
 const blockchain = require("./blockchain");
@@ -42,14 +42,23 @@ const closeExpiredOffers = async () => {
 			offer.buyerId = user_info.user;
 			offer.status = "completed";
 			offer.purchase_type = "auction";
-			
+
 			var token = await Tokens.findOne({
 				where: {_id: offer.tokenId}
 			});
+
+			var engineAddress = '';
+			if (token.collectionsId) {
+				var collection = await Collections.findOne({
+					where: {_id: token.collectionsId}
+				});
+				engineAddress = collection.engine_address;
+			}
+
 			var creator = await Users.findOne({
 				where: {_id: offer.creatorId}
 			});
-			
+
 			token.owners.unshift({
 				user: user_info.user,
 				price: user_info.price
@@ -63,7 +72,7 @@ const closeExpiredOffers = async () => {
 					where: {_id: token._id}
 				}
 			);
-			await blockchain.auctionSetWinner(token, user_info.price, creator);
+			await blockchain.auctionSetWinner(token, user_info.price, creator.wallet, engineAddress);
 			await offers_controller.giveRoyalties(offer, token);
 			await Activities.create({
 				type: "purchased",

@@ -447,8 +447,8 @@ const Controller = {
 	},
 
 	async buyToken(req, res) {
-		var { tokenId, buyerAddress } = helpers.parseFormData(req.body);
-		let buyResult = await blockchain.buyToken(tokenId, 0.00001, buyerAddress);
+		var { tokenId, buyerAddress, engineAddress } = helpers.parseFormData(req.body);
+		let buyResult = await blockchain.buyToken(tokenId, 0.00001, buyerAddress, engineAddress);
 		if (buyResult.success && buyResult.transactionHash) {
 			res.send({success: true, transactionHash: buyResult.transactionHash});
 		} else {
@@ -458,7 +458,7 @@ const Controller = {
 	},
 
 	async bidToken(req, res) {
-		var { tokenChainId, tokenId, bidderAddress } = helpers.parseFormData(req.body);
+		var { tokenChainId, tokenId, bidderAddress, engineAddress } = helpers.parseFormData(req.body);
 		var offer = await Offers.findOne({
 			where: {
 				tokenId: tokenId,
@@ -471,7 +471,7 @@ const Controller = {
 			bidPrice += 0.000001 * bids.length;
 		}
 
-		let bidResult = await blockchain.bidToken(tokenChainId, bidPrice, bidderAddress);
+		let bidResult = await blockchain.bidToken(tokenChainId, bidPrice, bidderAddress, engineAddress);
 		if (bidResult.success && bidResult.transactionHash) {
 			res.send({success: true, transactionHash: bidResult.transactionHash});
 		} else {

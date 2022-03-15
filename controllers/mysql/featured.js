@@ -27,14 +27,15 @@ const Controller = {
 				if (!update || update == [0])
 					return res.status(422).send({error: "Nothing was updated"});
 				res.send({message: "Featured updated"});
-			} 
-			await Featured.create({
-				created_by: 'admin',
-				featured: '',
-				featured_name: set.featured_name,
-				featured_price: set.featured_price
-			});
-			res.send({message: "Featured added"});
+			}  else {
+				await Featured.create({
+					created_by: 'admin',
+					featured: '',
+					featured_name: set.featured_name,
+					featured_price: set.featured_price
+				});
+				res.send({message: "Featured added"});
+			}
 		}
 		catch(error) {
 			res.status(500).send({error: "Server error"});
@@ -44,8 +45,10 @@ const Controller = {
 	async changeFeaturedImage(req, res) {
 		try {
 			if (req.files && req.files.featuredImage) {
-				var featured = await helpers.uploadFile(req.files.featuredImage, req.user.id, "content/cover");
-        		var exit = await Featured.findOne({
+				var featured = await helpers.uploadToIPFS(req.files.featuredImage.data, req.user.id);
+				if (!featured) featured = await helpers.uploadFile(req.files.featuredImage, req.user.id, "content/cover");
+				// var featured = await helpers.uploadFile(req.files.featuredImage, req.user.id, "content/cover");
+        	var exit = await Featured.findOne({
 					where: {
 						created_by: 'admin'
 					}
@@ -92,16 +95,16 @@ const Controller = {
 		}
 	},
 
-  	async getFeatured(req, res) {
-    	try {
-			var featuredNFT = await Featured.findOne({
-				where: {
-					created_by: 'admin'
-				}
-			});
-      		if (!featuredNFT) 
-				return res.status(404).send({error: "Featured not found"});
-      		res.send(featuredNFT);
+	async getFeatured(req, res) {
+		try {
+		var featuredNFT = await Featured.findOne({
+			where: {
+				created_by: 'admin'
+			}
+		});
+				if (!featuredNFT) 
+			return res.status(404).send({error: "Featured not found"});
+				res.send(featuredNFT);
 		} catch(error) {
 		res.status(500).send({error: "Server error"});
 		}
