@@ -26,7 +26,11 @@ const Controller = {
 				);
 				if (!update || update == [0])
 					return res.status(422).send({error: "Nothing was updated"});
-				res.send({message: "Featured updated"});
+				res.send({
+					message: "Featured updated", 
+					featured_name: set.featured_name, 
+					featured_price: set.featured_price
+				});
 			}  else {
 				await Featured.create({
 					created_by: 'admin',
@@ -34,7 +38,11 @@ const Controller = {
 					featured_name: set.featured_name,
 					featured_price: set.featured_price
 				});
-				res.send({message: "Featured added"});
+				res.send({
+					message: "Featured added",
+					featured_name: set.featured_name, 
+					featured_price: set.featured_price
+				});
 			}
 		}
 		catch(error) {
@@ -48,11 +56,12 @@ const Controller = {
 				var featured = await helpers.uploadToIPFS(req.files.featuredImage.data, req.user.id);
 				if (!featured) featured = await helpers.uploadFile(req.files.featuredImage, req.user.id, "content/cover");
 				// var featured = await helpers.uploadFile(req.files.featuredImage, req.user.id, "content/cover");
-        	var exit = await Featured.findOne({
+        var exit = await Featured.findOne({
 					where: {
 						created_by: 'admin'
 					}
 				});
+				const featuredImage = featured.includes("https://") ? featured : 'https://nftapi.puml.io' + featured;
 				if (exit) {
 					var update = await Featured.update(
 						{
@@ -63,7 +72,7 @@ const Controller = {
 								created_by: 'admin'
 							}
 						});
-					res.send({message: "Featured Image updated"});
+					res.send({message: "Featured Image updated", featuredImage: featuredImage});
 				} else {
 					await Featured.create({ 
 						created_by: 'admin',
@@ -71,7 +80,7 @@ const Controller = {
 						featured_name: '',
 						featured_price: 0
 					});
-					res.send({message: "Featured Image added"});
+					res.send({message: "Featured Image added", featuredImage: featuredImage});
 				}
 			} else {
 				var update = await Featured.update(
