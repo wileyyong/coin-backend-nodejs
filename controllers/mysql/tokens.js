@@ -1,4 +1,13 @@
-const { Collections, Tokens, Offers, Activities, Users, Categories } = require("../../models/mysql/sequelizer");
+const { 
+	Collections,
+	Tokens,
+	Offers,
+	Activities,
+	Users,
+	Categories,
+	ApprovedTokens,
+	Pumltransaction
+} = require("../../models/mysql/sequelizer");
 const helpers = require("../../helpers_mysql");
 const { Op } = require("sequelize");
 const blockchain = require("../../blockchain");
@@ -447,9 +456,14 @@ const Controller = {
 	},
 
 	async buyToken(req, res) {
-		var { tokenId, buyerAddress, engineAddress } = helpers.parseFormData(req.body);
-		let buyResult = await blockchain.buyToken(tokenId, 0.00001, buyerAddress, engineAddress);
+		var { tokenId, buyerAddress, sellerAddress, engineAddress, buyPrice } = helpers.parseFormData(req.body);
+		let buyResult = await blockchain.buyToken(tokenId, 0.00001, buyerAddress, sellerAddress, buyPrice, engineAddress);
 		if (buyResult.success && buyResult.transactionHash) {
+			await Pumltransaction.create({
+				seller: sellerAddress,
+				buyer: buyerAddress,
+				fee: buyPrice * 0.027
+			});
 			res.send({success: true, transactionHash: buyResult.transactionHash});
 		} else {
 			console.log("buyTokenErr", buyResult.error);
@@ -477,6 +491,142 @@ const Controller = {
 		} else {
 			console.log("bidTokenErr", bidResult.error);
 			res.send({success: false, error: {err: bidResult.error}});
+		}
+	},
+
+	async createApprovedToken(req, res) {
+		var { name, tokenId, description, attributes, collection, categories, royalties, locked, offchain, blockchain } = helpers.parseFormData(req.body);
+		if (!req.files || !req.files.media) 
+			return res.status(422).send({error: "Image or other media is required"});
+
+		try {
+			var token_data = {
+				name,
+				tokenId,
+				royalties,
+				categories: categories?.split("|"), // Todo: Add categories check exists
+				owners: [{user: req.user.id}],
+				creatorId: req.user.id,
+				offchain: offchain || false,
+				blockchain: blockchain || "ETH"
+			};
+			var token = await ApprovedTokens.create(token_data);
+			var media = await helpers.uploadToIPFS(req.files.media.data, token._id);
+			if (!media) media = await helpers.uploadFile(req.files.media, token._id, "content/media");
+			var media_type = req.files.media.name.split(".").pop().toLowerCase();
+			// var set = {};
+			token.media = media;
+			token.media_type = media_type;
+			if (req.files.thumbnail) {
+				var thumbnail = await helpers.uploadFile(req.files.thumbnail, token._id, "content/thumbnail");
+				token.thumbnail = thumbnail;
+			}
+
+			if (locked) token.locked = locked;
+			if (description) token.description = description;
+			if (attributes) token.attributes = attributes;
+			if (collection && !helpers.isNot(collection)) token.collectionsId = collection;
+			await token.save();
+			res.send({message: "Approved Token created", token, link: `/api/tokens/${token._id}.json`});
+		}
+		catch(error) {
+			res.status(500).send({error: "Token creation error"});
+		}
+	},
+
+	async deleteApprovedToken(req, res) {
+		try {
+
+			var _id = req.params.id;
+
+			var token = await ApprovedTokens.findOne({
+				where: {_id}
+			});
+			if (!token) 
+				return res.status(404).send({error: "Token not found"});
+
+			if (req.params.user != token.creatorId) 
+				return res.status(403).send({error: "Forbidden"});
+
+			await ApprovedTokens.destroy({
+				where: {_id}
+			});
+
+			res.send({message: "Approved Token success deleted"});
+		}
+		catch(error) {
+			res.status(500).send({error: "Approved Token delete error"});
+		}
+	},
+
+	async stakeToken(req, res) {
+		try {
+			var token_id = req.params.id;
+
+			if (!token_id) // || !mongoose.Types.ObjectId.isValid(token_id)
+				return res.status(422).send({error: "Bad token id"});
+
+			var token = await ApprovedTokens.findOne({
+				where: {
+					_id: token_id
+				}
+			});
+
+			if (!token) 
+				return res.status(404).send({error: "Token not found"});
+
+			var update = await ApprovedTokens.update(
+				{
+					stake: req.body.stake
+				}, 
+				{
+					where: {_id: token_id}
+				}
+			);
+
+			if (!update || update == [0])
+				return res.status(404).send({error: "Already done"});
+
+			res.send({message: "Success"});
+		}
+		catch(error) {
+			res.status(500).send({error: "Server error"});
+		}
+	},
+
+	async getMyApprovedTokens(req, res) {
+		try {
+			var where = {
+				"owners.0.user": req.user.id
+			};
+
+			var tokens = await ApprovedTokens.findAll({
+				where,
+				order: [['date_create', 'DESC']]
+			});
+
+			res.send({tokens});
+		}
+		catch(error) {
+			res.status(500).send({error: "Server error"});
+		}
+	},
+
+	async getPumlTransFee(req, res) {
+		try {
+			var sum = 0;
+			var trans = await Pumltransaction.find({ 
+				date_create: { $lte: new Date(req.body.updatetime * 1000) }
+			});
+
+			for (var tran of trans) {
+				sum += tran.fee;
+			}
+
+			res.send({sum: sum});
+		}
+		catch(error) {
+			res.status(500).send({error: "Server error"});
 		}
 	}
 };

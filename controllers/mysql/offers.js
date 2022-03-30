@@ -1,4 +1,4 @@
-const {Offers, Tokens, Activities, Users, Collections, Categories} = require("../../models/mysql/sequelizer");
+const {Offers, Tokens, Activities, Users, Collections, Categories, ApprovedTokens} = require("../../models/mysql/sequelizer");
 const helpers = require("../../helpers_mysql");
 const { Op } = require("sequelize");
 
@@ -449,6 +449,14 @@ const Controller = {
 				},
 				{
 					where: {_id: token._id}
+				}
+			);
+			await ApprovedTokens.update(
+				{
+					owners: token.owners
+				},
+				{
+					where: {tokenId: token._id}
 				}
 			);
 			

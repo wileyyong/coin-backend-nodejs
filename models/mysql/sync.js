@@ -10,6 +10,8 @@ const tokens = require('./tokens');
 const users = require('./users');
 const owners = require('./owners');
 const bids = require('./bids');
+const approvedtokens = require('./approvedtokens');
+const pumltransaction = require('./pumltransaction');
 
 const sequelize = new Sequelize({
   username: config.USERNAME,
@@ -38,6 +40,8 @@ tokens(sequelize);
 users(sequelize);
 owners(sequelize);
 bids(sequelize);
+approvedtokens(sequelize);
+pumltransaction(sequelize);
 
 sequelize
   .sync({

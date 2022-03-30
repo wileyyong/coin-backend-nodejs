@@ -68,7 +68,7 @@ const getMainAccount = async (blockchain) => {
 	return accounts[0];
 };
 
-const buyToken = async (tokenId, price, buyerAddress, engineAddress) => {
+const buyToken = async (tokenId, price, buyerAddress, sellerAddress, buyPrice, engineAddress) => {
 	const account = await getMainAccount("ETH");
 	const _engineAddress = engineAddress !== '' ? engineAddress : secrets.address_engine;
 	try {
@@ -77,7 +77,15 @@ const buyToken = async (tokenId, price, buyerAddress, engineAddress) => {
 			value: web3.utils.toWei('' + price)
 		})
 		if(result.status === true) {
-			return { success: true , transactionHash: result.transactionHash };
+			const pumlx = await new web3.eth.Contract(artifacts_erc20.abi, secrets.address_pumlx);
+			const pumlresult = await pumlx.methods.transfer(sellerAddress, web3.utils.toWei('' + buyPrice * 0.973)).send({
+				from: account
+			});
+			if(pumlresult.status === true) {
+				return { success: true , transactionHash: result.transactionHash };
+			} else {
+				return { success: false, error: 'Failed to send to buyer!' };
+			}
 		}
 		return { success: false, error: 'Failed to buy this item directly!' };
 	}

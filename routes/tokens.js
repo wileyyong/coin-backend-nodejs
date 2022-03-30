@@ -12,6 +12,7 @@ router.get("/", tokens.getAllTokens);
 // router.post("/mvp", /*tokenizer.tokenAccess,*/ filer, tokens.createTokenMvp);
 
 router.get("/my", tokenizer.tokenAccess, tokens.getMyTokens);
+router.get("/approvednft", tokenizer.tokenAccess, tokens.getMyApprovedTokens);
 router.get("/:id.json", tokens.getTokenJson);
 router.get("/:id", tokenizer.tokenPipe, tokens.getTokenInfo);
 router.post("/:id/chain", tokenizer.tokenAccess, tokens.setTokenChainId);
@@ -21,5 +22,8 @@ router.post("/", tokenizer.tokenAccess, filer, tokens.createToken);
 router.delete("/:id/:user", tokens.deleteToken);
 router.post("/buyToken", tokenizer.tokenAccess, filer, tokens.buyToken);
 router.post("/bidToken", tokenizer.tokenAccess, filer, tokens.bidToken);
+router.post("/approvednft", tokenizer.tokenAccess, filer, tokens.createApprovedToken);
+router.delete("/approvednft/:id/:user", tokens.deleteApprovedToken);
+router.post("/:id/stake", tokenizer.tokenAccess, tokens.stakeToken);
 
 module.exports = router;
