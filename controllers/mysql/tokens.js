@@ -495,7 +495,7 @@ const Controller = {
 	},
 
 	async createApprovedToken(req, res) {
-		var { name, tokenId, description, attributes, collection, categories, royalties, locked, offchain, blockchain } = helpers.parseFormData(req.body);
+		var { name, tokenId, chain_id, description, attributes, collection, categories, royalties, locked, offchain, blockchain } = helpers.parseFormData(req.body);
 		if (!req.files || !req.files.media) 
 			return res.status(422).send({error: "Image or other media is required"});
 
@@ -503,6 +503,7 @@ const Controller = {
 			var token_data = {
 				name,
 				tokenId,
+				chain_id,
 				royalties,
 				categories: categories?.split("|"), // Todo: Add categories check exists
 				owners: [{user: req.user.id}],
@@ -561,26 +562,14 @@ const Controller = {
 
 	async stakeToken(req, res) {
 		try {
-			var token_id = req.params.id;
-
-			if (!token_id) // || !mongoose.Types.ObjectId.isValid(token_id)
-				return res.status(422).send({error: "Bad token id"});
-
-			var token = await ApprovedTokens.findOne({
-				where: {
-					_id: token_id
-				}
-			});
-
-			if (!token) 
-				return res.status(404).send({error: "Token not found"});
+			var chainIds = req.body.chainIds;
 
 			var update = await ApprovedTokens.update(
 				{
 					stake: req.body.stake
 				}, 
 				{
-					where: {_id: token_id}
+					where: {chain_id: chainIds}
 				}
 			);
 

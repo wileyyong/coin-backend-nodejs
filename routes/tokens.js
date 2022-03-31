@@ -24,6 +24,7 @@ router.post("/buyToken", tokenizer.tokenAccess, filer, tokens.buyToken);
 router.post("/bidToken", tokenizer.tokenAccess, filer, tokens.bidToken);
 router.post("/approvednft", tokenizer.tokenAccess, filer, tokens.createApprovedToken);
 router.delete("/approvednft/:id/:user", tokens.deleteApprovedToken);
-router.post("/:id/stake", tokenizer.tokenAccess, tokens.stakeToken);
+router.post("/stake", tokenizer.tokenAccess, tokens.stakeToken);
+router.post("/getPumlTransFee", tokenizer.tokenAccess, tokens.getPumlTransFee);
 
 module.exports = router;
