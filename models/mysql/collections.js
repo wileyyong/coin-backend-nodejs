@@ -22,7 +22,6 @@ module.exports = (sequelize) => {
 			allowNull: false
 		},
 		contract_address: DataTypes.STRING,
-		engine_address: DataTypes.STRING,
 		network: DataTypes.INTEGER,
 		date_create: {
 			type: DataTypes.DATE,

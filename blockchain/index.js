@@ -5,6 +5,7 @@ const colors = require("colors");
 const artifacts_engine = require('./Engine.json');
 const artifacts_puml = require('./PumlNFT.json');
 const artifacts_erc20 = require('./IERC20.json');
+const artifacts_stake = require('./PumlStake.json');
 const secrets = require('./secrets.json');
 
 const HDWalletProvider = require("@truffle/hdwallet-provider");
@@ -56,16 +57,16 @@ const auctionSetWinner = async (token, winBidAmount, creator, engineAddress) => 
 
 
 const getMainAccount = async (blockchain) => {
-	if (!accounts.length) {
+	// if (!accounts.length) {
 		if (blockchain === "ETH") {
 			accounts = await web3.eth.getAccounts();
 		} else {
 			accounts = await web3Matic.eth.getAccounts();
 		}
-	}
 
-	console.log("accounts", accounts);
-	return accounts[0];
+		console.log("accounts", accounts);
+		return accounts[0];
+	// }
 };
 
 const buyToken = async (tokenId, price, buyerAddress, sellerAddress, buyPrice, engineAddress) => {
@@ -113,6 +114,59 @@ const bidToken = async (tokenId, price, bidderAddress, engineAddress) => {
 	}
 };
 
+const stakePuml = async (amount, transFee, staker) => {
+	const account = await getMainAccount("ETH");
+	
+	try {
+		
+		let result = await new web3.eth.Contract(artifacts_stake.abi, secrets.address_stake).methods.stake(web3.utils.toWei('' + amount), web3.utils.toWei('' + transFee), staker).send({
+			from: account
+		})
+		if(result.status === true) {
+			return { success: true , transactionHash: result.transactionHash };
+		}
+		return { success: false, error: 'Failed to stake pumlx!' };
+	}
+	catch(error) {
+		return { success: false, error: error };		
+	}
+};
+
+const withdrawPuml = async (amount, staker) => {
+	const account = await getMainAccount("ETH");
+	
+	try {
+
+		const pumlx = await new web3.eth.Contract(artifacts_erc20.abi, secrets.address_pumlx);
+		let result = await pumlx.methods.transfer(staker, web3.utils.toWei('' + amount)).send({
+			from: account
+		});
+		if(result.status === true) {
+			return { success: true , transactionHash: result.transactionHash };
+		}
+		return { success: false, error: 'Failed to unstake pumlx!' };
+	}
+	catch(error) {
+		return { success: false, error: error };		
+	}
+};
+
+const approveNft = async (contract_address, chainIds) => {
+	const account = await getMainAccount("ETH");
+	
+	try {
+		const PUMLContract = await new web3.eth.Contract(artifacts_puml.abi, contract_address);
+		for (let i = 0; i < chainIds.length; i++) {
+			await PUMLContract.methods.approve(secrets.address_stake, chainIds[i]).send({
+				from: account
+			})
+		}
+		return { success: true };
+	}
+	catch(error) {
+		return { success: false, error: error };
+	}
+};
 
 // const checkActualOffer = async (db_offer, db_token, cancel = false) => {
 // 	var chain_id = db_token.chain_id;
@@ -199,7 +253,10 @@ module.exports = {
 	auctionSetWinner,
 	getMainAccount,
 	buyToken,
-	bidToken
+	bidToken,
+	stakePuml,
+	withdrawPuml,
+	approveNft
 	// checkActualOffer,
 	// checkOwner,
 	// checkBids,

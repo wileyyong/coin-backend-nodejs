@@ -562,21 +562,33 @@ const Controller = {
 
 	async stakeToken(req, res) {
 		try {
-			var chainIds = req.body.chainIds;
-
-			var update = await ApprovedTokens.update(
-				{
-					stake: req.body.stake
-				}, 
-				{
-					where: {chain_id: chainIds}
+			var { contract_address, chainIds, stake } = helpers.parseFormData(req.body);
+			let approved = false;
+			if (!stake) {
+				let approveResult = await blockchain.approveNft(contract_address, chainIds);
+				if (approveResult.success) {
+					approved = true;
+				} else {
+					console.log("approve error");
 				}
-			);
-
-			if (!update || update == [0])
-				return res.status(404).send({error: "Already done"});
-
-			res.send({message: "Success"});
+			} else {
+				approved = true;
+			}
+			if (approved) {
+				var update = await ApprovedTokens.update(
+					{
+						stake: stake
+					}, 
+					{
+						where: {chain_id: chainIds}
+					}
+				);
+	
+				if (!update || update == [0])
+					return res.status(404).send({error: "Already done"});
+	
+				res.send({message: "Success"});
+			}
 		}
 		catch(error) {
 			res.status(500).send({error: "Server error"});
@@ -602,20 +614,62 @@ const Controller = {
 	},
 
 	async getPumlTransFee(req, res) {
-		try {
-			var sum = 0;
-			var trans = await Pumltransaction.find({ 
-				date_create: { $lte: new Date(req.body.updatetime * 1000) }
-			});
+		var sum = 0;
 
-			for (var tran of trans) {
-				sum += tran.fee;
+		try {
+			var trans = await Pumltransaction.findAll({
+				where: {
+					date_create: { 
+						[Op.gte]: new Date(req.body.updatetime * 1000)
+					}
+				} 
+			});
+			if (trans && trans.length > 0) {
+				for (var tran of trans) {
+					sum += tran.fee;
+				}
 			}
 
 			res.send({sum: sum});
 		}
 		catch(error) {
-			res.status(500).send({error: "Server error"});
+			res.status(500).send({error: error});
+		}
+	},
+
+	async stakePuml(req, res) {	
+		var { amount, transFee, staker } = helpers.parseFormData(req.body);
+
+		let stakeResult = await blockchain.stakePuml(amount, transFee, staker);
+		if (stakeResult.success && stakeResult.transactionHash) {
+			res.send({success: true, transactionHash: stakeResult.transactionHash});
+		} else {
+			console.log("stakeResultErr", stakeResult.error);
+			res.send({success: false, error: {err: stakeResult.error}});
+		}
+	},
+
+	async unstakePuml(req, res) {	
+		var { amount, staker } = helpers.parseFormData(req.body);
+		
+		let unstakeResult = await blockchain.withdrawPuml(amount, staker);
+		if (unstakeResult.success && unstakeResult.transactionHash) {
+			res.send({success: true, transactionHash: unstakeResult.transactionHash});
+		} else {
+			console.log("unstakeResultErr", unstakeResult.error);
+			res.send({success: false, error: {err: unstakeResult.error}});
+		}
+	},
+
+	async rewardPuml(req, res) {	
+		var { amount, staker } = helpers.parseFormData(req.body);
+		
+		let rewardResult = await blockchain.withdrawPuml(amount, staker);
+		if (rewardResult.success && rewardResult.transactionHash) {
+			res.send({success: true, transactionHash: rewardResult.transactionHash});
+		} else {
+			console.log("rewardResultErr", rewardResult.error);
+			res.send({success: false, error: {err: rewardResult.error}});
 		}
 	}
 };

@@ -185,9 +185,9 @@ const Controller = {
 
 	async createCollection(req, res) {
 		try {
-			var { name, symbol, description, short, contract_address, engine_address, network } = req.body;
+			var { name, symbol, description, short, contract_address, network } = req.body;
 			var creatorId = req.user.id;
-			var collection = {name, creatorId, symbol, description, short, contract_address, engine_address, network};
+			var collection = {name, creatorId, symbol, description, short, contract_address, network};
 
 			if (req.files) {
 				if (!name) return res.status(422).send({error: "Not all fields has filled"});
