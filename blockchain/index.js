@@ -119,7 +119,7 @@ const stakePuml = async (amount, transFee, staker) => {
 	
 	try {
 		
-		let result = await new web3.eth.Contract(artifacts_stake.abi, secrets.address_stake).methods.stake(web3.utils.toWei('' + amount), web3.utils.toWei('' + transFee), staker).send({
+		let result = await new web3.eth.Contract(artifacts_stake.abi, secrets.address_stake).methods.stake(amount, web3.utils.toWei('' + transFee), staker).send({
 			from: account
 		})
 		if(result.status === true) {
