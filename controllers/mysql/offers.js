@@ -219,7 +219,7 @@ const Controller = {
 				var paginator_data = await helpers.paginator(req.query.page, {where}, Offers);
 				var pagination = paginator_data.info;
 
-				var offers = await Offers.findAll({
+				var offers1 = await Offers.findAll({
 					where,
 					limit: 20,
 					skip: paginator_data.skip,
@@ -241,6 +241,21 @@ const Controller = {
 						}
 					]
 				});
+				var offers = [];
+				for (var offer of offers1) {
+					const tokenId = offer.tokenId;
+					const approvetoken = await ApprovedTokens.findOne({
+						where: {tokenId: tokenId}
+					});
+					if (
+						approvetoken && 
+						(approvetoken.stake == true || approvetoken.stake == null)
+					) {
+						continue;
+					}
+					offers.push(offer);
+				}
+
 
 				if (offers.length > 0) {
 					offers = offers.map((offer) => offer.get({ plain: true}));

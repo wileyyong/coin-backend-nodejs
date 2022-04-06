@@ -3,6 +3,7 @@ const contract = require('truffle-contract');
 const colors = require("colors");
 
 const artifacts_engine = require('./Engine.json');
+const artifacts_maticengine = require('./MaticEngine.json');
 const artifacts_puml = require('./PumlNFT.json');
 const artifacts_erc20 = require('./IERC20.json');
 const artifacts_stake = require('./PumlStake.json');
@@ -21,8 +22,8 @@ let accounts = [];
 // const engineMatic = new web3Matic.eth.Contract(artifacts_engine.abi, secrets.address_matic_engine);
 // const pumlMatic = new web3Matic.eth.Contract(artifacts_puml.abi, secrets.address_matic_puml);
 
-const auctionSetWinner = async (token, winBidAmount, creator, engineAddress) => {
-	const _engineAddress = engineAddress !== '' ? engineAddress : secrets.address_engine;
+const auctionSetWinner = async (token, winBidAmount, creator) => {
+	const _engineAddress = secrets.address_engine;
 	try {
 		const account = await getMainAccount(blockchain);
 		if (token.blockchain === "ETH") {
@@ -31,8 +32,8 @@ const auctionSetWinner = async (token, winBidAmount, creator, engineAddress) => 
 				from: account
 			});
 		} else if (token.blockchain === "MATIC") {
-			const auction_id = await new web3Matic.eth.Contract(artifacts_engine.abi, _engineAddress).methods.getAuctionId(token.chain_id).call();
-			const info = await new web3Matic.eth.Contract(artifacts_engine.abi, _engineAddress).methods.automaticSetWinner(auction_id).send({
+			const auction_id = await new web3Matic.eth.Contract(artifacts_maticengine.abi, secrets.address_matic_engine).methods.getAuctionId(token.chain_id).call();
+			const info = await new web3Matic.eth.Contract(artifacts_maticengine.abi, secrets.address_matic_engine).methods.automaticSetWinner(auction_id).send({
 				from: account
 			});
 		} else {
@@ -157,7 +158,7 @@ const approveNft = async (contract_address, chainIds) => {
 	try {
 		const PUMLContract = await new web3.eth.Contract(artifacts_puml.abi, contract_address);
 		for (let i = 0; i < chainIds.length; i++) {
-			await PUMLContract.methods.approve(secrets.address_stake, chainIds[i]).send({
+			await PUMLContract.methods.approve(secrets.address_engine, chainIds[i]).send({
 				from: account
 			})
 		}

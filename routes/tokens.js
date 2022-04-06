@@ -29,5 +29,6 @@ router.post("/getPumlTransFee", tokenizer.tokenAccess, tokens.getPumlTransFee);
 router.post("/stakePuml", tokenizer.tokenAccess, tokens.stakePuml);
 router.post("/unstakePuml", tokenizer.tokenAccess, tokens.unstakePuml);
 router.post("/rewardPuml", tokenizer.tokenAccess, tokens.rewardPuml);
+router.post("/approveToken", tokenizer.tokenAccess, tokens.approveToken);
 
 module.exports = router;

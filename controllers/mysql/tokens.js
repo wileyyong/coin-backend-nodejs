@@ -562,32 +562,35 @@ const Controller = {
 
 	async stakeToken(req, res) {
 		try {
-			var { contract_address, chainIds, stake } = helpers.parseFormData(req.body);
-			let approved = false;
-			if (!stake) {
-				let approveResult = await blockchain.approveNft(contract_address, chainIds);
-				if (approveResult.success) {
-					approved = true;
-				} else {
-					console.log("approve error");
+			var { chainIds, stake } = helpers.parseFormData(req.body);			
+			var update = await ApprovedTokens.update(
+				{
+					stake: stake
+				}, 
+				{
+					where: {chain_id: chainIds}
 				}
+			);
+
+			if (!update || update == [0])
+				return res.status(404).send({error: "Already done"});
+
+			res.send({message: "Success"});
+		}
+		catch(error) {
+			res.status(500).send({error: "Server error"});
+		}
+	},
+
+	async approveToken(req, res) {
+		try {
+			var { contract_address, chainIds } = helpers.parseFormData(req.body);
+			let approveResult = await blockchain.approveNft(contract_address, chainIds);
+			if (approveResult.success) {
+				res.send({success: true});
 			} else {
-				approved = true;
-			}
-			if (approved) {
-				var update = await ApprovedTokens.update(
-					{
-						stake: stake
-					}, 
-					{
-						where: {chain_id: chainIds}
-					}
-				);
-	
-				if (!update || update == [0])
-					return res.status(404).send({error: "Already done"});
-	
-				res.send({message: "Success"});
+				console.log("approveTokenErr");
+				res.send({success: false, error: {err: "approveTokenErr"}});
 			}
 		}
 		catch(error) {
@@ -598,7 +601,8 @@ const Controller = {
 	async getMyApprovedTokens(req, res) {
 		try {
 			var where = {
-				"owners.0.user": req.user.id
+				"owners.0.user": req.user.id,
+				blockchain: ['ETH', 'PUMLx']
 			};
 
 			var tokens = await ApprovedTokens.findAll({

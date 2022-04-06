@@ -47,14 +47,6 @@ const closeExpiredOffers = async () => {
 				where: {_id: offer.tokenId}
 			});
 
-			var engineAddress = '';
-			if (token.collectionsId) {
-				var collection = await Collections.findOne({
-					where: {_id: token.collectionsId}
-				});
-				engineAddress = collection.engine_address;
-			}
-
 			var creator = await Users.findOne({
 				where: {_id: offer.creatorId}
 			});
@@ -72,7 +64,7 @@ const closeExpiredOffers = async () => {
 					where: {_id: token._id}
 				}
 			);
-			await blockchain.auctionSetWinner(token, user_info.price, creator.wallet, engineAddress);
+			await blockchain.auctionSetWinner(token, user_info.price, creator.wallet);
 			await offers_controller.giveRoyalties(offer, token);
 			await Activities.create({
 				type: "purchased",
