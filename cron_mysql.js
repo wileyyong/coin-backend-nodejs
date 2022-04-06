@@ -1,5 +1,5 @@
 const cron = require("node-cron");
-const { Tokens, Offers, Activities, Users, Collections } = require('./models/mysql/sequelizer');
+const { Tokens, Offers, Activities, Users, ApprovedTokens } = require('./models/mysql/sequelizer');
 const offers_controller = require("./controllers/mysql/offers");
 
 const blockchain = require("./blockchain");
@@ -65,6 +65,14 @@ const closeExpiredOffers = async () => {
 				}
 			);
 			await blockchain.auctionSetWinner(token, user_info.price, creator.wallet);
+			await ApprovedTokens.update(
+				{
+					stake: null
+				},
+				{
+					where: {tokenId: token._id}
+				}
+			);
 			await offers_controller.giveRoyalties(offer, token);
 			await Activities.create({
 				type: "purchased",

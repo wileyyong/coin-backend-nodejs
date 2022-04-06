@@ -70,9 +70,9 @@ const getMainAccount = async (blockchain) => {
 	// }
 };
 
-const buyToken = async (tokenId, price, buyerAddress, sellerAddress, buyPrice, engineAddress) => {
+const buyToken = async (tokenId, price, buyerAddress, sellerAddress, buyPrice) => {
 	const account = await getMainAccount("ETH");
-	const _engineAddress = engineAddress !== '' ? engineAddress : secrets.address_engine;
+	const _engineAddress = secrets.address_engine;
 	try {
 		let result = await new web3.eth.Contract(artifacts_engine.abi, _engineAddress).methods.buy(tokenId, buyerAddress).send({
 			from: account,
@@ -96,9 +96,9 @@ const buyToken = async (tokenId, price, buyerAddress, sellerAddress, buyPrice, e
 	}
 };
 
-const bidToken = async (tokenId, price, bidderAddress, engineAddress) => {
+const bidToken = async (tokenId, price, bidderAddress) => {
 	const account = await getMainAccount("ETH");
-	const _engineAddress = engineAddress !== '' ? engineAddress : secrets.address_engine;
+	const _engineAddress = secrets.address_engine;
 	try {
 		const auction_id = await new web3.eth.Contract(artifacts_engine.abi, _engineAddress).methods.getAuctionId(tokenId).call();
 		let result = await new web3.eth.Contract(artifacts_engine.abi, _engineAddress).methods.bid(auction_id, bidderAddress).send({
@@ -152,15 +152,18 @@ const withdrawPuml = async (amount, staker) => {
 	}
 };
 
-const approveNft = async (contract_address, chainIds) => {
+const approveNft = async (chainIds) => {
 	const account = await getMainAccount("ETH");
 	
 	try {
-		const PUMLContract = await new web3.eth.Contract(artifacts_puml.abi, contract_address);
-		for (let i = 0; i < chainIds.length; i++) {
-			await PUMLContract.methods.approve(secrets.address_engine, chainIds[i]).send({
-				from: account
-			})
+		for (let key in chainIds) {
+			const contractAddress = key !== "0x0" ? key : secrets.address_puml;
+			const PUMLContract = await new web3.eth.Contract(artifacts_puml.abi, contractAddress);
+			for (let i = 0; i < chainIds[key].length; i++) {
+				await PUMLContract.methods.approve(secrets.address_engine, chainIds[key][i]).send({
+					from: account
+				})
+			}
 		}
 		return { success: true };
 	}

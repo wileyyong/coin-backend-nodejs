@@ -115,7 +115,8 @@ module.exports = (sequelize) => {
 		stake: {
 			type: DataTypes.BOOLEAN,
 			defaultValue: false
-		}
+		},
+		contract_address: DataTypes.STRING,
 	},
 	{
 		timestamps: false,

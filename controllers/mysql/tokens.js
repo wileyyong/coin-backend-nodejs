@@ -456,7 +456,7 @@ const Controller = {
 	},
 
 	async buyToken(req, res) {
-		var { tokenId, buyerAddress, sellerAddress, engineAddress, buyPrice } = helpers.parseFormData(req.body);
+		var { tokenId, buyerAddress, sellerAddress, buyPrice } = helpers.parseFormData(req.body);
 		let buyResult = await blockchain.buyToken(tokenId, 0.00001, buyerAddress, sellerAddress, buyPrice, engineAddress);
 		if (buyResult.success && buyResult.transactionHash) {
 			await Pumltransaction.create({
@@ -472,7 +472,7 @@ const Controller = {
 	},
 
 	async bidToken(req, res) {
-		var { tokenChainId, tokenId, bidderAddress, engineAddress } = helpers.parseFormData(req.body);
+		var { tokenChainId, tokenId, bidderAddress } = helpers.parseFormData(req.body);
 		var offer = await Offers.findOne({
 			where: {
 				tokenId: tokenId,
@@ -485,7 +485,7 @@ const Controller = {
 			bidPrice += 0.000001 * bids.length;
 		}
 
-		let bidResult = await blockchain.bidToken(tokenChainId, bidPrice, bidderAddress, engineAddress);
+		let bidResult = await blockchain.bidToken(tokenChainId, bidPrice, bidderAddress);
 		if (bidResult.success && bidResult.transactionHash) {
 			res.send({success: true, transactionHash: bidResult.transactionHash});
 		} else {
@@ -562,19 +562,24 @@ const Controller = {
 
 	async stakeToken(req, res) {
 		try {
-			var { chainIds, stake } = helpers.parseFormData(req.body);			
-			var update = await ApprovedTokens.update(
-				{
-					stake: stake
-				}, 
-				{
-					where: {chain_id: chainIds}
-				}
-			);
-
-			if (!update || update == [0])
-				return res.status(404).send({error: "Already done"});
-
+			var { chainIds, stake } = helpers.parseFormData(req.body);
+			for (let key in chainIds) {
+				const contractAddress = key !== "0x0" ? key : null;
+				var update = await ApprovedTokens.update(
+					{
+						stake: stake
+					}, 
+					{
+						where: {
+							chain_id: chainIds[key], 
+							contract_address: contractAddress
+						}
+					}
+				);
+	
+				if (!update || update == [0])
+					return res.status(404).send({error: "Already done"});
+			}
 			res.send({message: "Success"});
 		}
 		catch(error) {
@@ -584,8 +589,8 @@ const Controller = {
 
 	async approveToken(req, res) {
 		try {
-			var { contract_address, chainIds } = helpers.parseFormData(req.body);
-			let approveResult = await blockchain.approveNft(contract_address, chainIds);
+			var { chainIds } = helpers.parseFormData(req.body);
+			let approveResult = await blockchain.approveNft(chainIds);
 			if (approveResult.success) {
 				res.send({success: true});
 			} else {
