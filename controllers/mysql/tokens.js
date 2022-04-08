@@ -495,7 +495,7 @@ const Controller = {
 	},
 
 	async createApprovedToken(req, res) {
-		var { name, tokenId, chain_id, description, attributes, collection, categories, royalties, locked, offchain, blockchain } = helpers.parseFormData(req.body);
+		var { name, tokenId, chain_id, description, attributes, collection, categories, royalties, locked, offchain, blockchain, contract_address } = helpers.parseFormData(req.body);
 		if (!req.files || !req.files.media) 
 			return res.status(422).send({error: "Image or other media is required"});
 
@@ -509,7 +509,8 @@ const Controller = {
 				owners: [{user: req.user.id}],
 				creatorId: req.user.id,
 				offchain: offchain || false,
-				blockchain: blockchain || "ETH"
+				blockchain: blockchain || "ETH",
+				contract_address
 			};
 			var token = await ApprovedTokens.create(token_data);
 			var media = await helpers.uploadToIPFS(req.files.media.data, token._id);
