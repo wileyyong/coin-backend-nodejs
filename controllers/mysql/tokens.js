@@ -647,9 +647,9 @@ const Controller = {
 	},
 
 	async stakePuml(req, res) {	
-		var { amount, transFee, staker } = helpers.parseFormData(req.body);
+		var { amount, collect, staker } = helpers.parseFormData(req.body);
 
-		let stakeResult = await blockchain.stakePuml(amount, transFee, staker);
+		let stakeResult = await blockchain.stakePuml(amount, collect, staker);
 		if (stakeResult.success && stakeResult.transactionHash) {
 			res.send({success: true, transactionHash: stakeResult.transactionHash});
 		} else {
