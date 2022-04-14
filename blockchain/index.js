@@ -115,12 +115,12 @@ const bidToken = async (tokenId, price, bidderAddress) => {
 	}
 };
 
-const stakePuml = async (amount, collect, staker) => {
+const stakePuml = async (amount, collect, feeward, staker) => {
 	const account = await getMainAccount("ETH");
 	
 	try {
 		
-		let result = await new web3.eth.Contract(artifacts_stake.abi, secrets.address_stake).methods.stake(amount, web3.utils.toWei('' + collect), staker).send({
+		let result = await new web3.eth.Contract(artifacts_stake.abi, secrets.address_stake).methods.stake(amount, web3.utils.toWei('' + collect), web3.utils.toWei('' + feeward), staker).send({
 			from: account
 		})
 		if(result.status === true) {

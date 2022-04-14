@@ -12,6 +12,7 @@ const owners = require('./owners');
 const bids = require('./bids');
 const approvedtokens = require('./approvedtokens');
 const pumltransaction = require('./pumltransaction');
+const pumlfeecollects = require('./pumlfeecollects');
 
 const sequelize = new Sequelize({
   username: config.USERNAME,
@@ -42,6 +43,7 @@ const Owners = owners(sequelize);
 const Bids = bids(sequelize);
 const ApprovedTokens = approvedtokens(sequelize);
 const Pumltransaction = pumltransaction(sequelize);
+const Pumlfeecollects = pumlfeecollects(sequelize);
 
 Activities.belongsTo(Users, {
   targetKey: '_id',
@@ -165,5 +167,6 @@ module.exports = {
   Owners,
   Bids,
   ApprovedTokens,
-  Pumltransaction
+  Pumltransaction,
+  Pumlfeecollects
 };

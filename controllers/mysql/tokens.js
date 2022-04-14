@@ -6,7 +6,8 @@ const {
 	Users,
 	Categories,
 	ApprovedTokens,
-	Pumltransaction
+	Pumltransaction,
+	Pumlfeecollects
 } = require("../../models/mysql/sequelizer");
 const helpers = require("../../helpers_mysql");
 const { Op } = require("sequelize");
@@ -457,7 +458,7 @@ const Controller = {
 
 	async buyToken(req, res) {
 		var { tokenId, buyerAddress, sellerAddress, buyPrice } = helpers.parseFormData(req.body);
-		let buyResult = await blockchain.buyToken(tokenId, 0.00001, buyerAddress, sellerAddress, buyPrice, engineAddress);
+		let buyResult = await blockchain.buyToken(tokenId, 0.00001, buyerAddress, sellerAddress, buyPrice);
 		if (buyResult.success && buyResult.transactionHash) {
 			await Pumltransaction.create({
 				seller: sellerAddress,
@@ -565,7 +566,7 @@ const Controller = {
 		try {
 			var { chainIds, stake } = helpers.parseFormData(req.body);
 			for (let key in chainIds) {
-				const contractAddress = key !== "0x0" ? key : null;
+				const contractAddress = key !== "0x0" ? key : ["", null];
 				var update = await ApprovedTokens.update(
 					{
 						stake: stake
@@ -625,12 +626,12 @@ const Controller = {
 
 	async getPumlTransFee(req, res) {
 		var sum = 0;
-
+		
 		try {
 			var trans = await Pumltransaction.findAll({
 				where: {
 					date_create: { 
-						[Op.gte]: new Date(req.body.updatetime * 1000)
+						[Op.gte]: new Date(req.body.startTime * 1000)
 					}
 				} 
 			});
@@ -648,9 +649,9 @@ const Controller = {
 	},
 
 	async stakePuml(req, res) {	
-		var { amount, collect, staker } = helpers.parseFormData(req.body);
+		var { amount, collect, feeward, staker } = helpers.parseFormData(req.body);
 
-		let stakeResult = await blockchain.stakePuml(amount, collect, staker);
+		let stakeResult = await blockchain.stakePuml(amount, collect, feeward, staker);
 		if (stakeResult.success && stakeResult.transactionHash) {
 			res.send({success: true, transactionHash: stakeResult.transactionHash});
 		} else {
@@ -680,6 +681,29 @@ const Controller = {
 		} else {
 			console.log("rewardResultErr", rewardResult.error);
 			res.send({success: false, error: {err: rewardResult.error}});
+		}
+	},
+
+	async getPumlFeeCollect(req, res) {
+		try {
+			var collects = await Pumlfeecollects.findAll({
+				order: [['date_create', 'DESC']]
+			});
+
+			res.send({collects});
+		}
+		catch(error) {
+			res.status(500).send({error: "Server error"});
+		}
+	},
+
+	async pumlFeeCollect(req, res) {
+		var { collects } = helpers.parseFormData(req.body);
+		try {
+			Pumlfeecollects.create({collects: collects, collectorId: req.user.id});
+			res.send({success: true});
+		} catch(error) {
+			res.status(500).send({error: error});
 		}
 	}
 };

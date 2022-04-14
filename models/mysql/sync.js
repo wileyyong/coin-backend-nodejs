@@ -12,6 +12,7 @@ const owners = require('./owners');
 const bids = require('./bids');
 const approvedtokens = require('./approvedtokens');
 const pumltransaction = require('./pumltransaction');
+const pumlfeecollects = require('./pumlfeecollects');
 
 const sequelize = new Sequelize({
   username: config.USERNAME,
@@ -42,6 +43,7 @@ owners(sequelize);
 bids(sequelize);
 approvedtokens(sequelize);
 pumltransaction(sequelize);
+pumlfeecollects(sequelize)
 
 sequelize
   .sync({
