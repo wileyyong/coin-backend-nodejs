@@ -64,6 +64,11 @@ const closeExpiredOffers = async () => {
 					where: {_id: token._id}
 				}
 			);
+			var appToken = await ApprovedTokens.findOne({
+				where: {tokenId: token._id}
+			});
+			if (appToken && appToken.stake == true) return;
+
 			await blockchain.auctionSetWinner(token, user_info.price, creator.wallet);
 			await ApprovedTokens.update(
 				{
