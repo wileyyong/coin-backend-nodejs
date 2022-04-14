@@ -248,8 +248,7 @@ const Controller = {
 						where: {tokenId: tokenId}
 					});
 					if (
-						approvetoken && 
-						(approvetoken.stake == true || approvetoken.stake == null)
+						approvetoken && approvetoken.stake == true
 					) {
 						continue;
 					}
