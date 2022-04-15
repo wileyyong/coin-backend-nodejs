@@ -13,6 +13,7 @@ const bids = require('./bids');
 const approvedtokens = require('./approvedtokens');
 const pumltransaction = require('./pumltransaction');
 const pumlfeecollects = require('./pumlfeecollects');
+const qrcode = require('./qrcode');
 
 const sequelize = new Sequelize({
   username: config.USERNAME,
@@ -44,6 +45,7 @@ const Bids = bids(sequelize);
 const ApprovedTokens = approvedtokens(sequelize);
 const Pumltransaction = pumltransaction(sequelize);
 const Pumlfeecollects = pumlfeecollects(sequelize);
+const Qrcode = qrcode(sequelize);
 
 Activities.belongsTo(Users, {
   targetKey: '_id',
@@ -168,5 +170,6 @@ module.exports = {
   Bids,
   ApprovedTokens,
   Pumltransaction,
-  Pumlfeecollects
+  Pumlfeecollects,
+  Qrcode
 };

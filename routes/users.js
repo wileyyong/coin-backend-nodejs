@@ -23,4 +23,7 @@ router.get("/:id/follow", tokenizer.tokenAccess, users.toggleFollow);
 router.get("/:id/unfollow", tokenizer.tokenAccess, users.toggleFollow);
 router.get("/:id", tokenizer.tokenPipe, users.getOneUser);
 
+router.post("/qrconnect", tokenizer.tokenAccess, users.qrConnect);
+router.post("/qr/generate", tokenizer.tokenAccess, users.qrCode);
+
 module.exports = router;

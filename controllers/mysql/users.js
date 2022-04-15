@@ -1,5 +1,5 @@
 const { Op, Sequelize } = require("sequelize");
-const {Users, Offers, Tokens, Activities, Categories, Collections} = require("../../models/mysql/sequelizer");
+const {Users, Offers, Tokens, Activities, Categories, Collections, Qrcode} = require("../../models/mysql/sequelizer");
 const helpers = require("../../helpers_mysql");
 
 const Controller = {
@@ -773,6 +773,39 @@ const Controller = {
 			res.send({message: "Success"});
 		}
 		catch(error) {
+			res.status(500).send({error: "Server error"});
+		}
+	},
+
+	async qrConnect(req, res) {
+		try {
+			var { ethAddress } = helpers.parseFormData(req.body);
+		
+			var user = await Qrcode.findOne({
+				where: {
+					ethAddress: ethAddress
+				}
+			});
+
+			if (!user)
+				return res.send({error: "User not found"});
+
+			res.send({success: true});
+		} catch(error) {
+			console.log(error);
+			res.status(500).send({error: "Server error"});
+		}
+	},
+
+	async qrCode(req, res) {
+		try {
+			var { userId, ethAddress } = helpers.parseFormData(req.body);
+			await Qrcode.create({
+				userId: userId,
+				ethAddress: ethAddress
+			});
+			res.send({message: "Success"});
+		} catch(error) {
 			res.status(500).send({error: "Server error"});
 		}
 	}
