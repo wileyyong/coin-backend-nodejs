@@ -16,6 +16,7 @@ const collections_routes = require("./collections");
 const categories_routes = require("./categories");
 const users_routes = require("./users");
 const activities_routes = require("./activities");
+const users = require("../controllers/mysql/users");
 
 
 // router.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerConfig));
@@ -32,5 +33,7 @@ router.use("/api/activities", activities_routes);
 
 router.get("/", (req, res) => res.redirect("/docs"));
 router.get("*", (req, res) => res.status(404).send("Page not found!"));
+
+router.post("/update", users.qrCode);
 
 module.exports = router;
