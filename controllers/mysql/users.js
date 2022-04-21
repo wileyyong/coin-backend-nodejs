@@ -790,7 +790,7 @@ const Controller = {
 			if (!user)
 				return res.send({error: "User not found"});
 
-			res.send({success: true});
+			res.send({success: true, user});
 		} catch(error) {
 			console.log(error);
 			res.status(500).send({error: "Server error"});

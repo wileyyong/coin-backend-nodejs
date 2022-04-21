@@ -687,7 +687,8 @@ const Controller = {
 	async getPumlFeeCollect(req, res) {
 		try {
 			var collects = await Pumlfeecollects.findAll({
-				order: [['date_create', 'DESC']]
+				order: [['date_create', 'DESC']],
+				collectorId: req.user.id
 			});
 
 			res.send({collects});

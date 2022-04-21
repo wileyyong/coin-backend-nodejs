@@ -191,7 +191,7 @@ module.exports = {
 					name: "blockchain",
 					type: "string",
 					description: "Blockchain",
-					enum: ["ETH", "MATIC" ]
+					enum: ["ETH", "MATIC", "PUMLx" ]
 				}],
 				responses: {
 					200: {description: "Success. Gives out new `token`, `offer` and `link` to JSON"},
@@ -345,6 +345,199 @@ module.exports = {
 					type: "string",
 					required: true
 				}], 
+			}
+		},
+
+		"/api/tokens/approvednft": {
+			get: {
+				tags: [ "Tokens" ],
+				summary: "ApproveNft token",
+				description: "Method for token approved",
+ 				responses: {
+					200: {description: "Success."},
+					404: {description: "Failed! Token not found"},
+					422: {description: "Failed! Bad data"},
+					500: {description: "Failed! Unexpected server error"}
+				},
+				parameters: [{
+					name: "blockchain",
+					in: "query",
+					type: "string",
+					required: true,
+					enum: ["ETH", "PUMLx", "MATIC" ]
+				}], 
+			},
+
+			post: {
+				tags: [ "Tokens" ],
+				summary: "Create new approved nft",
+				description: "Method for creating a new approved nft",
+				consumes: [ "multipart/form-data" ],
+				security: [{Bearer: []}],
+				parameters: [{
+					in: "formData",
+					name: "name",
+					type: "string",
+					description: "Token name"
+				},{
+					in: "formData",
+					name: "description",
+					type: "string",
+					description: "Token description"
+				},{
+					in: "formData",
+					name: "collection",
+					required: false,
+					type: "string",
+					description: "Collection ID (not required)"
+				},{
+					in: "formData",
+					name: "categories",
+					type: "string",
+					default: "art|music|games",
+					description: "Array of categories"
+				},{
+					in: "formData",
+					name: "royalties",
+					type: "number",
+					description: "Royalties percent for token"
+				},{
+					in: "formData",
+					name: "locked",
+					type: "string",
+					required: false,
+					description: "Locked content (if needed)"
+				},{
+					in: "formData",
+					name: "offchain",
+					type: "boolean",
+					description: "Create NFT off-chain"
+				},{
+					in: "formData",
+					name: "media",
+					type: "file",
+					description: "Media file for token"
+				},{
+					in: "formData",
+					name: "thumbnail",
+					type: "file",
+					description: "Thumbnail image for token"
+				},{
+					in: "formData",
+					name: "blockchain",
+					type: "string",
+					description: "Blockchain",
+					enum: ["ETH", "MATIC", "PUMLx" ]
+				},{
+					in: "formData",
+					name: "contract_address",
+					type: "string",
+					description: "Contract Address"
+				}],
+				responses: {
+					200: {description: "Success. Gives out new `token`, `offer` and `link` to JSON"},
+					401: {description: "Failed! User not authorized or bad token"},
+					422: {description: "Failed! Not all fields has filled"},
+					// 404: {description: "Failed! User already exist"},
+					500: {description: "Failed! Unexpected server error"}
+				}
+			}
+		},
+
+		"/api/tokens/approvednft/{token_id}": {
+			delete: {
+				tags: [ "Tokens" ],
+				summary: "Delete approved token by ID",
+				description: "Method for deleting one approved token by ID",
+				responses: {
+					200: {description: "Success."},
+					403: {description: "Failed! Forbidden"},
+					404: {description: "Failed! Token is not exist"},
+					500: {description: "Failed! Unexpected server error"}
+				},
+				parameters: [{
+					name: "token_id",
+					in: "path",
+					type: "string",
+					required: true
+				}]
+			}
+		},
+
+		"/api/tokens/getPumlTransFee": {
+			post: {
+				tags: [ "Tokens" ],
+				summary: "Get Pumlx transaction fee",
+				description: "Get Pumlx transaction fee",
+				consumes: [ "application/json" ],
+				security: [{Bearer: []}],
+				parameters: [
+					{
+						in: "body",
+						name: "body",
+						required: true,
+						schema: {
+							type: "object",
+							properties: {
+								startTime: {type: "string", format: "date-time"}
+							}
+						}
+					}
+				],
+				responses: {
+					200: {description: "Success"},
+					403: {description: "Failed! Forbidden for this user"},
+					404: {description: "Failed! User is not found"},
+					422: {description: "Failed! Not all fields has filled"},
+					500: {description: "Failed! Unexpected server error"}
+				}
+			}
+		},
+
+		"/api/tokens/getPumlFeeCollect": {
+			post: {
+				tags: [ "Tokens" ],
+				summary: "Get Pumlx transaction fee collection",
+				description: "Get Pumlx transaction fee collection",
+				consumes: [ "application/json" ],
+				security: [{Bearer: []}],
+				responses: {
+					200: {description: "Success"},
+					403: {description: "Failed! Forbidden for this user"},
+					404: {description: "Failed! User is not found"},
+					422: {description: "Failed! Not all fields has filled"},
+					500: {description: "Failed! Unexpected server error"}
+				}
+			}
+		},
+
+		"/api/tokens/pumlFeeCollect": {
+			post: {
+				tags: [ "Tokens" ],
+				summary: "Save Pumlx transaction fee collection",
+				description: "Save Pumlx transaction fee collection",
+				consumes: [ "application/json" ],
+				security: [{Bearer: []}],
+				parameters: [
+					{
+						in: "body",
+						name: "body",
+						required: true,
+						schema: {
+							type: "object",
+							properties: {
+								collects: {type: "string", required: true}
+							}
+						}
+					}
+				],
+				responses: {
+					200: {description: "Success"},
+					403: {description: "Failed! Forbidden for this user"},
+					404: {description: "Failed! User is not found"},
+					422: {description: "Failed! Not all fields has filled"},
+					500: {description: "Failed! Unexpected server error"}
+				}
 			}
 		},
 
@@ -1171,6 +1364,95 @@ module.exports = {
 					200: {description: "Success. Gives out user `activities`"},
 					422: {description: "Failed! Not all fields has filled"},
 					404: {description: "Failed! User is not found"},
+					500: {description: "Failed! Unexpected server error"}
+				}
+			}
+		},
+
+		"/api/users/qrconnect": {
+			post: {
+				tags: [ "Users" ],
+				summary: "Check if have userId with ethAddress",
+				description: "Check if have userId with ethAddress",
+				security: [{Bearer: []}],
+				consumes: [ "application/json" ],
+				parameters: [{
+					in: "body",
+					name: "body",
+					required: true,
+					schema: {
+						type: "object",
+						properties: {
+							ethAddress: {type: "string", required: true}
+						}
+					}
+				}],
+				responses: {
+					200: {description: "Success."},
+					422: {description: "Failed! Not all fields has filled"},
+					500: {description: "Failed! Unexpected server error"}
+				}
+			}
+		},
+
+		"/api/apy": {
+			get: {
+				tags: [ "Users" ],
+				summary: "Get APY",
+				description: "Get APY",
+			  responses: {
+					200: {description: "Success."},
+					422: {description: "Failed! Not all fields has filled"},
+					500: {description: "Failed! Unexpected server error"}
+				}
+			},
+			post: {
+				tags: [ "Users" ],
+				summary: "Save APY",
+				description: "Save APY",
+				parameters: [
+					{
+						in: "body",
+						name: "body",
+						required: true,
+						schema: {
+							type: "object",
+							properties: {
+								apy: {type: "number", required: true}
+							}
+						}
+					}
+				],
+				responses: {
+					200: {description: "Success."},
+					422: {description: "Failed! Not all fields has filled"},
+					500: {description: "Failed! Unexpected server error"}
+				}
+			}
+		},
+
+		"/api/update": {
+			post: {
+				tags: [ "Users" ],
+				summary: "Save userId with ethAddress",
+				description: "Save userId with ethAddress",
+				parameters: [
+					{
+						in: "body",
+						name: "body",
+						required: true,
+						schema: {
+							type: "object",
+							properties: {
+								userId: {type: "string", required: true},
+								ethAddress: {type: "string", required: true},
+							}
+						}
+					}
+				],
+				responses: {
+					200: {description: "Success."},
+					422: {description: "Failed! Not all fields has filled"},
 					500: {description: "Failed! Unexpected server error"}
 				}
 			}

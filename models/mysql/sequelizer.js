@@ -14,6 +14,7 @@ const approvedtokens = require('./approvedtokens');
 const pumltransaction = require('./pumltransaction');
 const pumlfeecollects = require('./pumlfeecollects');
 const qrcode = require('./qrcode');
+const apy = require('./apy');
 
 const sequelize = new Sequelize({
   username: config.USERNAME,
@@ -46,6 +47,7 @@ const ApprovedTokens = approvedtokens(sequelize);
 const Pumltransaction = pumltransaction(sequelize);
 const Pumlfeecollects = pumlfeecollects(sequelize);
 const Qrcode = qrcode(sequelize);
+const Apy = apy(sequelize);
 
 Activities.belongsTo(Users, {
   targetKey: '_id',
@@ -171,5 +173,6 @@ module.exports = {
   ApprovedTokens,
   Pumltransaction,
   Pumlfeecollects,
-  Qrcode
+  Qrcode,
+  Apy
 };
