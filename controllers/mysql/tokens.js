@@ -291,11 +291,12 @@ const Controller = {
 
 
 	async createToken(req, res) {
-		var { name, description, attributes, collection, categories, royalties, locked, offchain, blockchain } = helpers.parseFormData(req.body);
-		if (!req.files || !req.files.media) 
-			return res.status(422).send({error: "Image or other media is required"});
+		var { name, description, attributes, collection, categories, royalties, locked, offchain, blockchain, media } = helpers.parseFormData(req.body);
+		//if (!req.files || !req.files.media) 
+			//return res.status(422).send({error: "Image or other media is required"});
 
 		try {
+			var media_type = media.split(".").pop().split("?")[0].toLowerCase();
 			var token_data = {
 				name,
 				royalties,
@@ -303,25 +304,27 @@ const Controller = {
 				owners: [{user: req.user.id}],
 				creatorId: req.user.id,
 				offchain: offchain || false,
-				blockchain: blockchain || "ETH"
+				blockchain: blockchain || "ETH",
+				media,
+				media_type
 			};
 			var token = await Tokens.create(token_data);
-			var media = await helpers.uploadToIPFS(req.files.media.data, token._id);
-			if (!media) media = await helpers.uploadFile(req.files.media, token._id, "content/media");
-			var media_type = req.files.media.name.split(".").pop().toLowerCase();
+			//var media = await helpers.uploadToIPFS(req.files.media.data, token._id);
+			//if (!media) media = await helpers.uploadFile(req.files.media, token._id, "content/media");
+			//var media_type = req.files.media.name.split(".").pop().toLowerCase();
 			// var set = {};
-			token.media = media;
-			token.media_type = media_type;
-			if (req.files.thumbnail) {
-				var thumbnail = await helpers.uploadFile(req.files.thumbnail, token._id, "content/thumbnail");
-				token.thumbnail = thumbnail;
-			}
+			//token.media = media;
+			//token.media_type = media_type;
+			//if (req.files.thumbnail) {
+				//var thumbnail = await helpers.uploadFile(req.files.thumbnail, token._id, "content/thumbnail");
+				//token.thumbnail = thumbnail;
+			//}
 
-			if (locked) token.locked = locked;
-			if (description) token.description = description;
-			if (attributes) token.attributes = attributes;
-			if (collection && !helpers.isNot(collection)) token.collectionsId = collection;
-			await token.save();
+			//if (locked) token.locked = locked;
+			//if (description) token.description = description;
+			//if (attributes) token.attributes = attributes;
+			//if (collection && !helpers.isNot(collection)) token.collectionsId = collection;
+			//await token.save();
 			res.send({message: "Token created", token, link: `/api/tokens/${token._id}.json`});
 			Activities.create({
 				type: "minted",

@@ -185,27 +185,29 @@ const Controller = {
 
 	async createCollection(req, res) {
 		try {
-			var { name, symbol, description, short, contract_address, network } = req.body;
+			var { name, symbol, description, short, contract_address, network, image, cover } = req.body;
 			var creatorId = req.user.id;
-			var collection = {name, creatorId, symbol, description, short, contract_address, network};
+			var collection = {name, creatorId, symbol, description, short, contract_address, network, image, cover};
+			
+			collection = await Collections.create(collection);
 
-			if (req.files) {
-				if (!name) return res.status(422).send({error: "Not all fields has filled"});
+			//if (req.files) {
+				//if (!name) return res.status(422).send({error: "Not all fields has filled"});
 
-				collection = await Collections.create(collection);
+				//collection = await Collections.create(collection);
 
-				if (req.files.image) {
-					var image = await helpers.uploadToIPFS(req.files.image.data, collection._id);
-					if (!image) image = await helpers.uploadFile(req.files.image, collection._id, "content/collection");
-					collection.image = image;
-				}
-				if (req.files.cover) {
-					var cover = await helpers.uploadToIPFS(req.files.cover.data, collection._id);
-					if (!cover) cover = await helpers.uploadFile(req.files.cover, collection._id, "content/cover");
-					collection.cover = cover;
-				}
-			}
-			await collection.save();
+				//if (req.files.image) {
+					//var image = await helpers.uploadToIPFS(req.files.image.data, collection._id);
+					//if (!image) image = await helpers.uploadFile(req.files.image, collection._id, "content/collection");
+					//collection.image = image;
+				//}
+				//if (req.files.cover) {
+					//var cover = await helpers.uploadToIPFS(req.files.cover.data, collection._id);
+					//if (!cover) cover = await helpers.uploadFile(req.files.cover, collection._id, "content/cover");
+					//collection.cover = cover;
+				//}
+			//}
+			//await collection.save();
 			// var update = await Collections.update(
 			// 	collection,
 			// 	{
