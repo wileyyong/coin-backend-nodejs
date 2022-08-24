@@ -7,7 +7,8 @@ const {
   Categories,
   ApprovedTokens,
   Pumltransaction,
-  Pumlfeecollects
+  Pumlfeecollects,
+  Claimhistories
 } = require("../../models/mysql/sequelizer");
 const helpers = require("../../helpers_mysql");
 const { Op } = require("sequelize");
@@ -778,17 +779,38 @@ const Controller = {
       if (!user) return res.status(404).send({ error: "No user" });
       if (!amount) return res.status(404).send({ error: "No amount" });
 
-      let transferResult = await blockchain.claimPuml(user.wallet, amount);
-      // if (transferResult.success && transferResult.transactionHash) {
-      //   res.send({
-      //     success: true,
-      //     transactionHash: rewardResult.transactionHash
-      //   });
-      // } else {
-      //   console.log("transferResultErr", transferResult.error);
-      //   res.send({ success: false, error: { err: transferResult.error } });
-      // }
-      res.send({ transferResult });
+      const claimData = await Claimhistories.findOne({
+        limit: 1,
+        order: [["date_create", "DESC"]]
+      });
+
+      if (claimData) {
+        let claimTime = dateTime
+          ? new Date(dateTime).getTime()
+          : new Date().getTime();
+        let lastClaimTime = new Date(claimData.date_create).getTime();
+        const leftHours = 24 - (claimTime - lastClaimTime) / 3600;
+
+        if (leftHours < 0) {
+          return res.send({
+            error: "Allow to claim once in 24 hours",
+            lastTime: claimData.date_create
+          });
+        }
+      }
+
+      let transferResult = await blockchain.claimPuml(
+        user.wallet,
+        amount,
+        dateTime
+      );
+      if (transferResult && transferResult.success) {
+        await Claimhistories.create({
+          userId,
+          amount
+        });
+      }
+      res.send({ claimData });
     } catch (error) {
       res.status(500).send({ error: error });
     }

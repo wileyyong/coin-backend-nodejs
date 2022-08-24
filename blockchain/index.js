@@ -264,19 +264,25 @@ const claimPuml = async (to, amount) => {
       .balanceOf(secrets.address_stake)
       .call();
 
-    const claimAmount = new web3.utils.toWei("" + amount);
+    const bvalue = balance / 1e18;
 
-    if (balance < claimAmount) {
-      return { success: false, error: "Amount is greater than deposited puml" };
+    if (bvalue - amount < 0) {
+      return {
+        success: false,
+        error: "Amount is greater than deposited puml",
+        balance: bvalue
+      };
     }
 
     const pumlx = await new web3.eth.Contract(
       artifacts_stake.abi,
       secrets.address_stake
     );
-    let result = await pumlx.methods.pickPuml(to, claimAmount).send({
-      from: account
-    });
+    let result = await pumlx.methods
+      .pickPuml(to, web3.utils.toWei("" + amount))
+      .send({
+        from: account
+      });
     if (result.status === true) {
       return { success: true, transactionHash: result.transactionHash };
     }
