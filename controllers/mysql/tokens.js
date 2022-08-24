@@ -780,6 +780,7 @@ const Controller = {
       if (!amount) return res.status(404).send({ error: "No amount" });
 
       const claimData = await Claimhistories.findOne({
+        where: { userId },
         limit: 1,
         order: [["date_create", "DESC"]]
       });
