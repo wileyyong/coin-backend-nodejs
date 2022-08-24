@@ -41,6 +41,5 @@ router.post(
   tokens.getPumlFeeCollect
 );
 router.post("/pumlFeeCollect", tokenizer.tokenAccess, tokens.pumlFeeCollect);
-router.post("/claimPuml", tokens.claimPumlAPI);
 
 module.exports = router;
