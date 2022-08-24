@@ -811,7 +811,7 @@ const Controller = {
           amount
         });
       }
-      res.send({ claimData });
+      res.send({ transferResult });
     } catch (error) {
       res.status(500).send({ error: error });
     }
