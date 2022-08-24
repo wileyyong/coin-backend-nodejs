@@ -476,26 +476,30 @@ const Controller = {
   },
 
   async buyToken(req, res) {
-    var { tokenId, buyerAddress, sellerAddress, buyPrice } =
-      helpers.parseFormData(req.body);
-    let buyResult = await blockchain.buyToken(
-      tokenId,
-      0.00001,
-      buyerAddress,
-      sellerAddress,
-      buyPrice
+    var { buyerAddress, sellerAddress, buyPrice } = helpers.parseFormData(
+      req.body
     );
-    if (buyResult.success && buyResult.transactionHash) {
-      await Pumltransaction.create({
-        seller: sellerAddress,
-        buyer: buyerAddress,
-        fee: buyPrice * 0.027
-      });
-      res.send({ success: true, transactionHash: buyResult.transactionHash });
-    } else {
-      console.log("buyTokenErr", buyResult.error);
-      res.send({ success: false, error: buyResult.error });
-    }
+    // var { tokenId, buyerAddress, sellerAddress, buyPrice } =
+    //   helpers.parseFormData(req.body);
+    // let buyResult = await blockchain.buyToken(
+    //   tokenId,
+    //   0.00001,
+    //   buyerAddress,
+    //   sellerAddress,
+    //   buyPrice
+    // );
+    // if (buyResult.success && buyResult.transactionHash) {
+    await Pumltransaction.create({
+      seller: sellerAddress,
+      buyer: buyerAddress,
+      fee: buyPrice * 0.027
+    });
+    res.send({ success: true });
+    // res.send({ success: true, transactionHash: buyResult.transactionHash });
+    // } else {
+    //   console.log("buyTokenErr", buyResult.error);
+    //   res.send({ success: false, error: buyResult.error });
+    // }
   },
 
   async bidToken(req, res) {
@@ -759,6 +763,32 @@ const Controller = {
     try {
       Pumlfeecollects.create({ collects: collects, collectorId: req.user.id });
       res.send({ success: true });
+    } catch (error) {
+      res.status(500).send({ error: error });
+    }
+  },
+
+  async claimPumlAPI(req, res) {
+    try {
+      var { userId, dateTime, amount } = helpers.parseFormData(req.body);
+      var user = await Users.findOne({
+        where: { _id: userId }
+      });
+
+      if (!user) return res.status(404).send({ error: "No user" });
+      if (!amount) return res.status(404).send({ error: "No amount" });
+
+      let transferResult = await blockchain.claimPuml(user.wallet, amount);
+      // if (transferResult.success && transferResult.transactionHash) {
+      //   res.send({
+      //     success: true,
+      //     transactionHash: rewardResult.transactionHash
+      //   });
+      // } else {
+      //   console.log("transferResultErr", transferResult.error);
+      //   res.send({ success: false, error: { err: transferResult.error } });
+      // }
+      res.send({ transferResult });
     } catch (error) {
       res.status(500).send({ error: error });
     }
