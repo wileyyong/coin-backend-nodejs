@@ -691,7 +691,7 @@ const Controller = {
       if (trans && trans.length > 0) {
         for (var tran of trans) {
           sum += tran.fee;
-          if (tran.seller == req.body.user) {
+          if (tran.seller == req.body.user || tran.buyer == req.body.user) {
             usersum += tran.fee;
           }
         }
@@ -807,7 +807,7 @@ const Controller = {
       if (trans && trans.length > 0) {
         for (var tran of trans) {
           sum += tran.fee;
-          if (tran.seller == user.wallet) {
+          if (tran.seller == user.wallet || tran.buyer == user.wallet) {
             usersum += tran.fee;
           }
         }
