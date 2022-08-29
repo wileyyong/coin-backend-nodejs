@@ -111,123 +111,6 @@ const getMainAccount = async (blockchain) => {
   // }
 };
 
-const buyToken = async (
-  tokenId,
-  price,
-  buyerAddress,
-  sellerAddress,
-  buyPrice
-) => {
-  const account = await getMainAccount("ETH");
-  const _engineAddress = secrets.address_engine;
-  try {
-    let result = await new web3.eth.Contract(
-      artifacts_engine.abi,
-      _engineAddress
-    ).methods
-      .buy(tokenId, buyerAddress)
-      .send({
-        from: account,
-        value: web3.utils.toWei("" + price)
-      });
-    if (result.status === true) {
-      const pumlx = await new web3.eth.Contract(
-        artifacts_erc20.abi,
-        secrets.address_pumlx
-      );
-      const pumlresult = await pumlx.methods
-        .transfer(sellerAddress, web3.utils.toWei("" + buyPrice * 0.973))
-        .send({
-          from: account
-        });
-      if (pumlresult.status === true) {
-        return { success: true, transactionHash: result.transactionHash };
-      } else {
-        return { success: false, error: "Failed to send to buyer!" };
-      }
-    }
-    return { success: false, error: "Failed to buy this item directly!" };
-  } catch (error) {
-    return { success: false, error: error };
-  }
-};
-
-const bidToken = async (tokenId, price, bidderAddress) => {
-  const account = await getMainAccount("ETH");
-  const _engineAddress = secrets.address_engine;
-  try {
-    const auction_id = await new web3.eth.Contract(
-      artifacts_engine.abi,
-      _engineAddress
-    ).methods
-      .getAuctionId(tokenId)
-      .call();
-    let result = await new web3.eth.Contract(
-      artifacts_engine.abi,
-      _engineAddress
-    ).methods
-      .bid(auction_id, bidderAddress)
-      .send({
-        from: account,
-        value: web3.utils.toWei("" + price)
-      });
-    if (result.status === true) {
-      return { success: true, transactionHash: result.transactionHash };
-    }
-    return { success: false, error: "Failed to bid this item directly!" };
-  } catch (error) {
-    return { success: false, error: error };
-  }
-};
-
-const stakePuml = async (amount, collect, feeward, staker) => {
-  const account = await getMainAccount("ETH");
-
-  try {
-    let result = await new web3.eth.Contract(
-      artifacts_stake.abi,
-      secrets.address_stake
-    ).methods
-      .stake(
-        amount,
-        web3.utils.toWei("" + collect),
-        web3.utils.toWei("" + feeward),
-        staker
-      )
-      .send({
-        from: account
-      });
-    if (result.status === true) {
-      return { success: true, transactionHash: result.transactionHash };
-    }
-    return { success: false, error: "Failed to stake pumlx!" };
-  } catch (error) {
-    return { success: false, error: error };
-  }
-};
-
-const withdrawPuml = async (amount, staker) => {
-  const account = await getMainAccount("ETH");
-
-  try {
-    const pumlx = await new web3.eth.Contract(
-      artifacts_erc20.abi,
-      secrets.address_pumlx
-    );
-    let result = await pumlx.methods
-      .transfer(staker, web3.utils.toWei("" + amount))
-      .send({
-        from: account
-      });
-    if (result.status === true) {
-      return { success: true, transactionHash: result.transactionHash };
-    }
-    return { success: false, error: "Failed to unstake pumlx!" };
-  } catch (error) {
-    return { success: false, error: error };
-  }
-};
-
 const approveNft = async (chainIds) => {
   const account = await getMainAccount("ETH");
 
@@ -252,44 +135,81 @@ const approveNft = async (chainIds) => {
   }
 };
 
-const claimPuml = async (to, amount) => {
+const getUserData = async (user) => {
   const account = await getMainAccount("ETH");
 
   try {
-    const pumlContract = new web3.eth.Contract(
-      artifacts_erc20.abi,
-      secrets.address_pumlx
-    );
-    const balance = await pumlContract.methods
-      .balanceOf(secrets.address_stake)
-      .call();
-
-    const bvalue = balance / 1e18;
-
-    if (bvalue - amount < 0) {
-      return {
-        success: false,
-        error: "Amount is greater than deposited puml",
-        balance: bvalue
-      };
-    }
-
     const pumlx = await new web3.eth.Contract(
       artifacts_stake.abi,
       secrets.address_stake
     );
-    let result = await pumlx.methods
-      .pickPuml(to, web3.utils.toWei("" + amount))
-      .send({
-        from: account
-      });
-    if (result.status === true) {
-      return { success: true, transactionHash: result.transactionHash };
-    }
-    return { success: false, error: "Failed to transfer pumlx!" };
+
+    let result = await pumlx.methods.getUserData(user).call();
+
+    return result;
   } catch (error) {
     return { success: false, error: error };
   }
+};
+
+const collectPerUser = async (user, feeward) => {
+  const account = await getMainAccount("ETH");
+
+  try {
+    const pumlx = await new web3.eth.Contract(
+      artifacts_stake.abi,
+      secrets.address_stake
+    );
+
+    let result = await pumlx.methods.collectPerUser(user, feeward).call();
+
+    return result;
+  } catch (error) {
+    return { success: false, error: error };
+  }
+};
+
+const claimPuml = async (claimer, amount, feeCollect) => {
+  const account = await getMainAccount("ETH");
+
+  // try {
+  const pumlContract = new web3.eth.Contract(
+    artifacts_erc20.abi,
+    secrets.address_pumlx
+  );
+
+  const balance = await pumlContract.methods
+    .balanceOf(secrets.address_stake)
+    .call();
+
+  const bvalue = balance / 1e18;
+
+  if (bvalue - amount < 0) {
+    return {
+      success: false,
+      error: "Insufficient puml in Contract",
+      balance: bvalue
+    };
+  }
+
+  const pumlx = await new web3.eth.Contract(
+    artifacts_stake.abi,
+    secrets.address_stake
+  );
+
+  let result = await pumlx.methods
+    .claimApi(claimer, web3.utils.toWei("" + amount), feeCollect)
+    .send({
+      from: account
+    });
+
+  if (result.status === true) {
+    return { success: true, transactionHash: result.transactionHash };
+  }
+  return { success: false, error: "Failed to transfer pumlx!" };
+  // } catch (error) {
+  //   return { success: false, error: error };
+  // }
 };
 
 // const checkActualOffer = async (db_offer, db_token, cancel = false) => {
@@ -370,11 +290,13 @@ const claimPuml = async (to, amount) => {
 module.exports = {
   auctionSetWinner,
   getMainAccount,
-  buyToken,
-  bidToken,
-  stakePuml,
-  withdrawPuml,
+  // buyToken,
+  // bidToken,
+  // stakePuml,
+  // withdrawPuml,
   approveNft,
+  getUserData,
+  collectPerUser,
   claimPuml
   // checkActualOffer,
   // checkOwner,

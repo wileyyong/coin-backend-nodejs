@@ -503,34 +503,34 @@ const Controller = {
     // }
   },
 
-  async bidToken(req, res) {
-    var { tokenChainId, tokenId, bidderAddress } = helpers.parseFormData(
-      req.body
-    );
-    var offer = await Offers.findOne({
-      where: {
-        tokenId: tokenId,
-        type: ["auction", "both"]
-      }
-    });
-    var bidPrice = 0.000011;
-    if (offer) {
-      var bids = offer.bids;
-      bidPrice += 0.000001 * bids.length;
-    }
+  // async bidToken(req, res) {
+  //   var { tokenChainId, tokenId, bidderAddress } = helpers.parseFormData(
+  //     req.body
+  //   );
+  //   var offer = await Offers.findOne({
+  //     where: {
+  //       tokenId: tokenId,
+  //       type: ["auction", "both"]
+  //     }
+  //   });
+  //   var bidPrice = 0.000011;
+  //   if (offer) {
+  //     var bids = offer.bids;
+  //     bidPrice += 0.000001 * bids.length;
+  //   }
 
-    let bidResult = await blockchain.bidToken(
-      tokenChainId,
-      bidPrice,
-      bidderAddress
-    );
-    if (bidResult.success && bidResult.transactionHash) {
-      res.send({ success: true, transactionHash: bidResult.transactionHash });
-    } else {
-      console.log("bidTokenErr", bidResult.error);
-      res.send({ success: false, error: { err: bidResult.error } });
-    }
-  },
+  //   let bidResult = await blockchain.bidToken(
+  //     tokenChainId,
+  //     bidPrice,
+  //     bidderAddress
+  //   );
+  //   if (bidResult.success && bidResult.transactionHash) {
+  //     res.send({ success: true, transactionHash: bidResult.transactionHash });
+  //   } else {
+  //     console.log("bidTokenErr", bidResult.error);
+  //     res.send({ success: false, error: { err: bidResult.error } });
+  //   }
+  // },
 
   async createApprovedToken(req, res) {
     var {
@@ -676,8 +676,9 @@ const Controller = {
     }
   },
 
-  async getPumlTransFee(req, res) {
+  async getPumlTradingFee(req, res) {
     var sum = 0;
+    var usersum = 0;
 
     try {
       var trans = await Pumltransaction.findAll({
@@ -690,84 +691,89 @@ const Controller = {
       if (trans && trans.length > 0) {
         for (var tran of trans) {
           sum += tran.fee;
+          if (tran.seller == req.body.user) {
+            usersum += tran.fee;
+          }
         }
       }
 
-      res.send({ sum: sum });
+      const tradingFee = sum > 0 ? usersum / sum : 0;
+
+      res.send({ tradingFee });
     } catch (error) {
       res.status(500).send({ error: error });
     }
   },
 
-  async stakePuml(req, res) {
-    var { amount, collect, feeward, staker } = helpers.parseFormData(req.body);
+  // async stakePuml(req, res) {
+  //   var { amount, collect, feeward, staker } = helpers.parseFormData(req.body);
 
-    let stakeResult = await blockchain.stakePuml(
-      amount,
-      collect,
-      feeward,
-      staker
-    );
-    if (stakeResult.success && stakeResult.transactionHash) {
-      res.send({ success: true, transactionHash: stakeResult.transactionHash });
-    } else {
-      console.log("stakeResultErr", stakeResult.error);
-      res.send({ success: false, error: { err: stakeResult.error } });
-    }
-  },
+  //   let stakeResult = await blockchain.stakePuml(
+  //     amount,
+  //     collect,
+  //     feeward,
+  //     staker
+  //   );
+  //   if (stakeResult.success && stakeResult.transactionHash) {
+  //     res.send({ success: true, transactionHash: stakeResult.transactionHash });
+  //   } else {
+  //     console.log("stakeResultErr", stakeResult.error);
+  //     res.send({ success: false, error: { err: stakeResult.error } });
+  //   }
+  // },
 
-  async unstakePuml(req, res) {
-    var { amount, staker } = helpers.parseFormData(req.body);
+  // async unstakePuml(req, res) {
+  //   var { amount, staker } = helpers.parseFormData(req.body);
 
-    let unstakeResult = await blockchain.withdrawPuml(amount, staker);
-    if (unstakeResult.success && unstakeResult.transactionHash) {
-      res.send({
-        success: true,
-        transactionHash: unstakeResult.transactionHash
-      });
-    } else {
-      console.log("unstakeResultErr", unstakeResult.error);
-      res.send({ success: false, error: { err: unstakeResult.error } });
-    }
-  },
+  //   let unstakeResult = await blockchain.withdrawPuml(amount, staker);
+  //   if (unstakeResult.success && unstakeResult.transactionHash) {
+  //     res.send({
+  //       success: true,
+  //       transactionHash: unstakeResult.transactionHash
+  //     });
+  //   } else {
+  //     console.log("unstakeResultErr", unstakeResult.error);
+  //     res.send({ success: false, error: { err: unstakeResult.error } });
+  //   }
+  // },
 
-  async rewardPuml(req, res) {
-    var { amount, staker } = helpers.parseFormData(req.body);
+  // async rewardPuml(req, res) {
+  //   var { amount, staker } = helpers.parseFormData(req.body);
 
-    let rewardResult = await blockchain.withdrawPuml(amount, staker);
-    if (rewardResult.success && rewardResult.transactionHash) {
-      res.send({
-        success: true,
-        transactionHash: rewardResult.transactionHash
-      });
-    } else {
-      console.log("rewardResultErr", rewardResult.error);
-      res.send({ success: false, error: { err: rewardResult.error } });
-    }
-  },
+  //   let rewardResult = await blockchain.withdrawPuml(amount, staker);
+  //   if (rewardResult.success && rewardResult.transactionHash) {
+  //     res.send({
+  //       success: true,
+  //       transactionHash: rewardResult.transactionHash
+  //     });
+  //   } else {
+  //     console.log("rewardResultErr", rewardResult.error);
+  //     res.send({ success: false, error: { err: rewardResult.error } });
+  //   }
+  // },
 
-  async getPumlFeeCollect(req, res) {
-    try {
-      var collects = await Pumlfeecollects.findAll({
-        order: [["date_create", "DESC"]],
-        collectorId: req.user.id
-      });
+  // async getPumlFeeCollect(req, res) {
+  //   try {
+  //     var collects = await Pumlfeecollects.findAll({
+  //       order: [["date_create", "DESC"]],
+  //       collectorId: req.user.id
+  //     });
 
-      res.send({ collects });
-    } catch (error) {
-      res.status(500).send({ error: "Server error" });
-    }
-  },
+  //     res.send({ collects });
+  //   } catch (error) {
+  //     res.status(500).send({ error: "Server error" });
+  //   }
+  // },
 
-  async pumlFeeCollect(req, res) {
-    var { collects } = helpers.parseFormData(req.body);
-    try {
-      Pumlfeecollects.create({ collects: collects, collectorId: req.user.id });
-      res.send({ success: true });
-    } catch (error) {
-      res.status(500).send({ error: error });
-    }
-  },
+  // async pumlFeeCollect(req, res) {
+  //   var { collects } = helpers.parseFormData(req.body);
+  //   try {
+  //     Pumlfeecollects.create({ collects: collects, collectorId: req.user.id });
+  //     res.send({ success: true });
+  //   } catch (error) {
+  //     res.status(500).send({ error: error });
+  //   }
+  // },
 
   async claimPumlAPI(req, res) {
     try {
@@ -779,38 +785,68 @@ const Controller = {
       if (!user) return res.status(404).send({ error: "No user" });
       if (!amount) return res.status(404).send({ error: "No amount" });
 
-      const claimData = await Claimhistories.findOne({
-        where: { userId },
-        limit: 1,
-        order: [["date_create", "DESC"]]
-      });
+      let userData = await blockchain.getUserData(user.wallet);
 
-      if (claimData) {
-        let claimTime = dateTime
-          ? new Date(dateTime).getTime()
-          : new Date().getTime();
-        let lastClaimTime = new Date(claimData.date_create).getTime();
-        const leftHours = 24 - (claimTime - lastClaimTime) / 3600;
+      // return res.send({
+      //   userData
+      // });
 
-        if (leftHours < 0) {
-          return res.send({
-            error: "Allow to claim once in 24 hours",
-            lastTime: claimData.date_create
-          });
+      const rewardStored = userData[1] / 1e18;
+      const lastUpdatedTime = userData[0];
+
+      var sum = 0;
+      var usersum = 0;
+
+      var trans = await Pumltransaction.findAll({
+        where: {
+          date_create: {
+            [Op.gte]: new Date(lastUpdatedTime)
+          }
         }
+      });
+      if (trans && trans.length > 0) {
+        for (var tran of trans) {
+          sum += tran.fee;
+          if (tran.seller == user.wallet) {
+            usersum += tran.fee;
+          }
+        }
+      }
+
+      const tradingFee = sum > 0 ? usersum / sum : 0;
+
+      const collectValue = await blockchain.collectPerUser(
+        user.wallet,
+        tradingFee
+      );
+
+      let claimTime = dateTime
+        ? new Date(dateTime).getTime()
+        : new Date().getTime();
+
+      const leftHours =
+        24 - (claimTime / 1000 - parseFloat(userData[0])) / 3600;
+
+      if (leftHours < 0) {
+        return res.send({
+          error: "Allow to claim once in 24 hours",
+          lastTime: new Date(parseFloat(userData[0]))
+        });
+      }
+
+      if (amount > collectValue / 1e18 + rewardStored) {
+        return res.send({
+          error: "Please claim less than the reward stored",
+          stored: collectValue / 1e18 + rewardStored
+        });
       }
 
       let transferResult = await blockchain.claimPuml(
         user.wallet,
         amount,
-        dateTime
+        tradingFee
       );
-      if (transferResult && transferResult.success) {
-        await Claimhistories.create({
-          userId,
-          amount
-        });
-      }
+
       res.send({ transferResult });
     } catch (error) {
       res.status(500).send({ error: error });

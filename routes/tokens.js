@@ -20,8 +20,8 @@ router.get("/:id/like", tokenizer.tokenAccess, tokens.toggleLike);
 router.get("/:id/unlike", tokenizer.tokenAccess, tokens.toggleLike);
 router.post("/", tokenizer.tokenAccess, filer, tokens.createToken);
 router.delete("/:id/:user", tokens.deleteToken);
-router.post("/buyToken", tokenizer.tokenAccess, filer, tokens.buyToken);
-router.post("/bidToken", tokenizer.tokenAccess, filer, tokens.bidToken);
+// router.post("/buyToken", tokenizer.tokenAccess, filer, tokens.buyToken);
+// router.post("/bidToken", tokenizer.tokenAccess, filer, tokens.bidToken);
 router.post(
   "/approvednft",
   tokenizer.tokenAccess,
@@ -30,16 +30,20 @@ router.post(
 );
 router.delete("/approvednft/:id/:user", tokens.deleteApprovedToken);
 router.post("/stake", tokenizer.tokenAccess, tokens.stakeToken);
-router.post("/getPumlTransFee", tokenizer.tokenAccess, tokens.getPumlTransFee);
-router.post("/stakePuml", tokenizer.tokenAccess, tokens.stakePuml);
-router.post("/unstakePuml", tokenizer.tokenAccess, tokens.unstakePuml);
-router.post("/rewardPuml", tokenizer.tokenAccess, tokens.rewardPuml);
-router.post("/approveToken", tokenizer.tokenAccess, tokens.approveToken);
 router.post(
-  "/getPumlFeeCollect",
+  "/getPumlTradingFee",
   tokenizer.tokenAccess,
-  tokens.getPumlFeeCollect
+  tokens.getPumlTradingFee
 );
-router.post("/pumlFeeCollect", tokenizer.tokenAccess, tokens.pumlFeeCollect);
+// router.post("/stakePuml", tokenizer.tokenAccess, tokens.stakePuml);
+// router.post("/unstakePuml", tokenizer.tokenAccess, tokens.unstakePuml);
+// router.post("/rewardPuml", tokenizer.tokenAccess, tokens.rewardPuml);
+router.post("/approveToken", tokenizer.tokenAccess, tokens.approveToken);
+// router.post(
+//   "/getPumlFeeCollect",
+//   tokenizer.tokenAccess,
+//   tokens.getPumlFeeCollect
+// );
+// router.post("/pumlFeeCollect", tokenizer.tokenAccess, tokens.pumlFeeCollect);
 
 module.exports = router;
