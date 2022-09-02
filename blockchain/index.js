@@ -212,6 +212,20 @@ const claimPuml = async (claimer, amount, feeCollect) => {
   // }
 };
 
+const balanceOfPuml = async () => {
+  const account = await getMainAccount("ETH");
+
+  const pumlContract = new web3.eth.Contract(
+    artifacts_erc20.abi,
+    secrets.address_puml
+  );
+
+  const balance = await pumlContract.methods
+    .balanceOfPuml(secrets.address_stake)
+    .call();
+  return { balance };
+};
+
 // const checkActualOffer = async (db_offer, db_token, cancel = false) => {
 // 	var chain_id = db_token.chain_id;
 // 	let owner = await puml.ownerOf(chain_id);
@@ -297,7 +311,8 @@ module.exports = {
   approveNft,
   getUserData,
   collectPerUser,
-  claimPuml
+  claimPuml,
+  balanceOfPuml
   // checkActualOffer,
   // checkOwner,
   // checkBids,

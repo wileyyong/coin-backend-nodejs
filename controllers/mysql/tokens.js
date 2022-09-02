@@ -815,10 +815,24 @@ const Controller = {
 
       const tradingFee = sum > 0 ? usersum / sum : 0;
 
-      const collectValue = await blockchain.collectPerUser(
-        user.wallet,
-        tradingFee
-      );
+      // const collectValue = await blockchain.collectPerUser(
+      //   user.wallet,
+      //   tradingFee
+      // );
+      let collectRate = tradingFee;
+      if (stakeValue[6] > 0) {
+        collectRate += stakeValue[5] / stakeValue[6];
+      }
+      if (stakeValue[8] > 0) {
+        collectRate += stakeValue[7] / stakeValue[8];
+      }
+      const balanceOfPumlx = await await blockchain.balanceOfPuml();
+
+      const collectValue =
+        (((collectRate * balanceOfPumlx.balance) / 2372500) *
+          6500 *
+          (new Date().getTime() / 1000 - stakeValue[0])) /
+        86400;
 
       let claimTime = dateTime
         ? new Date(dateTime).getTime()
