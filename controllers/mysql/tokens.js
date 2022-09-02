@@ -833,17 +833,19 @@ const Controller = {
 
       const monthDiff = await helpers.getMonthDifference(startDate, now);
       let rewardPerMonth = 0;
-      if (monthDiff === 0) {
-        rewardPerMonth =
-          secretes.start_reward +
-          secretes.start_pumlx * secretes.change_per_period;
-      } else {
-        rewardPerMonth = secretes.start_reward;
-        for (let i = 0; i < monthDiff; i++) {
-          rewardPerMonth +=
-            secretes.start_pumlx *
-            Math.pow(1 - secretes.change_per_period, i) *
-            secretes.change_per_period;
+      if (startDate.getTime() < now.getTime()) {
+        if (monthDiff === 0) {
+          rewardPerMonth =
+            secretes.start_reward +
+            secretes.start_pumlx * secretes.change_per_period;
+        } else {
+          rewardPerMonth = secretes.start_reward;
+          for (let i = 0; i < monthDiff; i++) {
+            rewardPerMonth +=
+              secretes.start_pumlx *
+              Math.pow(1 - secretes.change_per_period, i) *
+              secretes.change_per_period;
+          }
         }
       }
 
