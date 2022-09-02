@@ -13,6 +13,7 @@ const {
 const helpers = require("../../helpers_mysql");
 const { Op } = require("sequelize");
 const blockchain = require("../../blockchain");
+const secretes = require("../../blockchain/secrets.json");
 
 const Controller = {
   async getAllTokens(req, res) {
@@ -826,13 +827,29 @@ const Controller = {
       if (stakeValue[8] > 0) {
         collectRate += stakeValue[7] / stakeValue[8];
       }
-      const balanceOfPumlx = await await blockchain.balanceOfPuml();
+
+      const now = new Date();
+      const startDate = new Date("2022-10-01");
+
+      const monthDiff = await helpers.getMonthDifference(startDate, now);
+      let rewardPerMonth = 0;
+      if (monthDiff === 0) {
+        rewardPerMonth =
+          secretes.start_reward +
+          secretes.start_pumlx * secretes.change_per_period;
+      } else {
+        rewardPerMonth = secretes.start_reward;
+        for (let i = 0; i < monthDiff; i++) {
+          rewardPerMonth +=
+            secretes.start_pumlx *
+            Math.pow(1 - secretes.change_per_period, i) *
+            secretes.change_per_period;
+        }
+      }
 
       const collectValue =
-        (((collectRate * balanceOfPumlx.balance) / 2372500) *
-          6500 *
-          (new Date().getTime() / 1000 - stakeValue[0])) /
-        86400;
+        ((collectRate * rewardPerMonth) / 30 / 86400) *
+        (new Date().getTime() / 1000 - lastUpdatedTime);
 
       let claimTime = dateTime
         ? new Date(dateTime).getTime()
