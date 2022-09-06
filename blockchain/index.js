@@ -81,9 +81,19 @@ const auctionSetWinner = async (token, winBidAmount, creator) => {
         artifacts_stake.abi,
         secrets.address_stake
       );
-      pumlx.methods.pickPuml(creator, winBidAmount).send({
+      pumlx.methods.pickPuml(creator, winBidAmount * 0.73).send({
         from: account
       });
+      pumlx.methods
+        .pickPuml(secrets.fee17_address, winBidAmount * 0.73 * 0.63)
+        .send({
+          from: account
+        });
+      pumlx.methods
+        .pickPuml(secrets.fee10_address, winBidAmount * 0.73 * 0.36)
+        .send({
+          from: account
+        });
     }
 
     console.log(
@@ -169,7 +179,7 @@ const collectPerUser = async (user, feeward) => {
   }
 };
 
-const claimPuml = async (claimer, amount, feeCollect) => {
+const claimPuml = async (claimer, amount, collect) => {
   const account = await getMainAccount("ETH");
 
   // try {
@@ -198,7 +208,11 @@ const claimPuml = async (claimer, amount, feeCollect) => {
   );
 
   let result = await pumlx.methods
-    .claimApi(claimer, web3.utils.toWei("" + amount), feeCollect)
+    .claimApi(
+      claimer,
+      web3.utils.toWei("" + amount),
+      web3.utils.toWei("" + collect)
+    )
     .send({
       from: account
     });

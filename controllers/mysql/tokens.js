@@ -798,51 +798,61 @@ const Controller = {
       var sum = 0;
       var usersum = 0;
 
-      var trans = await Pumltransaction.findAll({
-        where: {
-          date_create: {
-            [Op.gte]: new Date(lastUpdatedTime)
-          }
-        }
-      });
-      if (trans && trans.length > 0) {
-        for (var tran of trans) {
-          sum += tran.fee;
-          if (tran.seller == user.wallet || tran.buyer == user.wallet) {
-            usersum += tran.fee;
-          }
-        }
-      }
+      // var trans = await Pumltransaction.findAll({
+      //   where: {
+      //     date_create: {
+      //       [Op.gte]: new Date(lastUpdatedTime)
+      //     }
+      //   }
+      // });
+      // if (trans && trans.length > 0) {
+      //   for (var tran of trans) {
+      //     sum += tran.fee;
+      //     if (tran.seller == user.wallet || tran.buyer == user.wallet) {
+      //       usersum += tran.fee;
+      //     }
+      //   }
+      // }
 
-      const tradingFee = sum > 0 ? usersum / sum : 0;
+      // const tradingFee = sum > 0 ? usersum / sum : 0;
 
       // const collectValue = await blockchain.collectPerUser(
       //   user.wallet,
       //   tradingFee
       // );
-      let collectRate = tradingFee;
+      let collectRatePUML = 0;
+      let collectRateNFT = 0;
       if (stakeValue[6] > 0) {
-        collectRate += stakeValue[5] / stakeValue[6];
+        collectRatePUML = stakeValue[5] / stakeValue[6];
       }
       if (stakeValue[8] > 0) {
-        collectRate += stakeValue[7] / stakeValue[8];
+        collectRateNFT = stakeValue[7] / stakeValue[8];
       }
 
       const now = new Date();
       const startDate = new Date("2022-10-01");
 
       const monthDiff = await helpers.getMonthDifference(startDate, now);
-      let rewardPerMonth = 0;
+      let rewardPerMonthPUML = 0;
+      let rewardPerMonthNFT = 0;
       if (startDate.getTime() < now.getTime()) {
         if (monthDiff === 0) {
-          rewardPerMonth =
+          rewardPerMonthPUML =
             secretes.start_reward +
             secretes.start_pumlx * secretes.change_per_period;
+          rewardPerMonthNFT =
+            secretes.start_reward_nft +
+            secretes.start_pumlx_nft * secretes.change_per_period;
         } else {
-          rewardPerMonth = secretes.start_reward;
+          rewardPerMonthPUML = secretes.start_reward;
+          rewardPerMonthNFT = secretes.start_reward_nft;
           for (let i = 0; i < monthDiff; i++) {
-            rewardPerMonth +=
+            rewardPerMonthPUML +=
               secretes.start_pumlx *
+              Math.pow(1 - secretes.change_per_period, i) *
+              secretes.change_per_period;
+            rewardPerMonthNFT +=
+              secretes.start_pumlx_nft *
               Math.pow(1 - secretes.change_per_period, i) *
               secretes.change_per_period;
           }
@@ -850,7 +860,10 @@ const Controller = {
       }
 
       const collectValue =
-        ((collectRate * rewardPerMonth) / 30 / 86400) *
+        ((collectRatePUML * rewardPerMonthPUML +
+          collectRateNFT * rewardPerMonthNFT) /
+          30 /
+          86400) *
         (new Date().getTime() / 1000 - lastUpdatedTime);
 
       let claimTime = dateTime
@@ -877,7 +890,7 @@ const Controller = {
       let transferResult = await blockchain.claimPuml(
         user.wallet,
         amount,
-        tradingFee
+        collectValue
       );
 
       res.send({ transferResult });
