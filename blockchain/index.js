@@ -12,7 +12,7 @@ const secrets = require("./secrets.json");
 const HDWalletProvider = require("@truffle/hdwallet-provider");
 const provider = new HDWalletProvider(
   secrets.mnemonic,
-  `https://rinkeby.infura.io/v3/${secrets.projectId}`
+  `https://goerli.infura.io/v3/${secrets.projectId}`
 );
 const maticProvider = new HDWalletProvider(
   secrets.mnemonic,

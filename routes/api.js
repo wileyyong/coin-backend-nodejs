@@ -9,5 +9,6 @@ router.get("/apy", apy.getApy);
 router.post("/apy", apy.updateApy);
 router.post("/update", users.qrCode);
 router.post("/claimPuml", tokens.claimPumlAPI);
+router.post("/nfts", tokens.getNftsAPI);
 
 module.exports = router;

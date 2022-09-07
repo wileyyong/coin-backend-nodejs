@@ -779,24 +779,24 @@ const Controller = {
   async claimPumlAPI(req, res) {
     try {
       var { userId, dateTime, amount } = helpers.parseFormData(req.body);
-      var user = await Users.findOne({
-        where: { _id: userId }
-      });
+      var where = {};
+
+      where = {
+        [Op.or]: [{ wallet: userId }, { link: userId }, { _id: userId }]
+      };
+
+      var user = await Users.findOne({ where });
 
       if (!user) return res.status(404).send({ error: "No user" });
       if (!amount) return res.status(404).send({ error: "No amount" });
 
       let userData = await blockchain.getUserData(user.wallet);
 
-      // return res.send({
-      //   userData
-      // });
-
       const rewardStored = userData[1] / 1e18;
       const lastUpdatedTime = userData[0];
 
-      var sum = 0;
-      var usersum = 0;
+      // var sum = 0;
+      // var usersum = 0;
 
       // var trans = await Pumltransaction.findAll({
       //   where: {
@@ -820,13 +820,14 @@ const Controller = {
       //   user.wallet,
       //   tradingFee
       // );
+
       let collectRatePUML = 0;
       let collectRateNFT = 0;
-      if (stakeValue[6] > 0) {
-        collectRatePUML = stakeValue[5] / stakeValue[6];
+      if (userData[6] > 0) {
+        collectRatePUML = userData[5] / userData[6];
       }
-      if (stakeValue[8] > 0) {
-        collectRateNFT = stakeValue[7] / stakeValue[8];
+      if (userData[8] > 0) {
+        collectRateNFT = userData[7] / userData[8];
       }
 
       const now = new Date();
@@ -894,6 +895,44 @@ const Controller = {
       );
 
       res.send({ transferResult });
+    } catch (error) {
+      res.status(500).send({ error: error });
+    }
+  },
+
+  async getNftsAPI(req, res) {
+    try {
+      var { userId } = helpers.parseFormData(req.body);
+
+      var where = {};
+      where = {
+        [Op.or]: [{ wallet: userId }, { link: userId }, { _id: userId }]
+      };
+
+      var user = await Users.findOne({ where });
+
+      if (!user) return res.status(404).send({ error: "No user" });
+      const id = user._id;
+
+      var whereToken = {
+        chain_id: {
+          [Op.not]: null
+        }
+      };
+
+      var tokens = await Tokens.findAll({
+        whereToken
+      });
+
+      let tokenArr = [];
+
+      for (let i = 0; i < tokens.length; i++) {
+        if (tokens[i].owners[0].user == id) {
+          tokenArr.push(tokens[i]);
+        }
+      }
+
+      res.send({ tokens: tokenArr });
     } catch (error) {
       res.status(500).send({ error: error });
     }
