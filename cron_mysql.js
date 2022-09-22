@@ -80,7 +80,7 @@ const closeExpiredOffers = async () => {
       });
       await ApprovedTokens.update(
         {
-          stake: null
+          stake: 0
         },
         {
           where: { tokenId: token._id }

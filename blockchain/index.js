@@ -109,226 +109,63 @@ const auctionSetWinner = async (token, winBidAmount, creator) => {
 };
 
 const getMainAccount = async (blockchain) => {
-  // if (!accounts.length) {
-  if (blockchain === "ETH") {
-    accounts = await web3.eth.getAccounts();
-  } else {
-    accounts = await web3Matic.eth.getAccounts();
-  }
-
-  console.log("accounts", accounts);
-  return accounts[0];
-  // }
-};
-
-const approveNft = async (chainIds) => {
-  const account = await getMainAccount("ETH");
-
-  try {
-    for (let key in chainIds) {
-      const contractAddress = key !== "0x0" ? key : secrets.address_puml;
-      const PUMLContract = await new web3.eth.Contract(
-        artifacts_puml.abi,
-        contractAddress
-      );
-      for (let i = 0; i < chainIds[key].length; i++) {
-        await PUMLContract.methods
-          .approve(secrets.address_engine, chainIds[key][i])
-          .send({
-            from: account
-          });
-      }
+  if (!accounts.length) {
+    if (blockchain === "ETH") {
+      accounts = await web3.eth.getAccounts();
+    } else {
+      accounts = await web3Matic.eth.getAccounts();
     }
-    return { success: true };
-  } catch (error) {
-    return { success: false, error: error };
+
+    console.log("accounts", accounts);
+    return accounts[0];
   }
 };
 
-const getUserData = async (user) => {
+const claimPuml = async (claimer, amount) => {
   const account = await getMainAccount("ETH");
 
   try {
+    const pumlContract = new web3.eth.Contract(
+      artifacts_erc20.abi,
+      secrets.address_pumlx
+    );
+
+    const balance = await pumlContract.methods
+      .balanceOf(secrets.address_pumlx_pool)
+      .call();
+
+    const bvalue = parseFloat(balance.balance) / 1e18;
+
+    if (bvalue - amount < 0) {
+      return {
+        success: false,
+        error: "Insufficient puml in Contract",
+        balance: bvalue
+      };
+    }
+
     const pumlx = await new web3.eth.Contract(
       artifacts_stake.abi,
       secrets.address_stake
     );
 
-    let result = await pumlx.methods.getUserData(user).call();
+    let result = await pumlx.methods
+      .claimApi(claimer, web3.utils.toWei("" + amount))
+      .send({
+        from: account
+      });
 
-    return result;
+    if (result.status === true) {
+      return { success: true, transactionHash: result.transactionHash };
+    }
+    return { success: false, error: "Failed to transfer pumlx!" };
   } catch (error) {
     return { success: false, error: error };
   }
 };
-
-const collectPerUser = async (user, feeward) => {
-  const account = await getMainAccount("ETH");
-
-  try {
-    const pumlx = await new web3.eth.Contract(
-      artifacts_stake.abi,
-      secrets.address_stake
-    );
-
-    let result = await pumlx.methods.collectPerUser(user, feeward).call();
-
-    return result;
-  } catch (error) {
-    return { success: false, error: error };
-  }
-};
-
-const claimPuml = async (claimer, amount, collect) => {
-  const account = await getMainAccount("ETH");
-
-  // try {
-  const pumlContract = new web3.eth.Contract(
-    artifacts_erc20.abi,
-    secrets.address_pumlx
-  );
-
-  const balance = await pumlContract.methods
-    .balanceOf(secrets.address_stake)
-    .call();
-
-  const bvalue = balance / 1e18;
-
-  if (bvalue - amount < 0) {
-    return {
-      success: false,
-      error: "Insufficient puml in Contract",
-      balance: bvalue
-    };
-  }
-
-  const pumlx = await new web3.eth.Contract(
-    artifacts_stake.abi,
-    secrets.address_stake
-  );
-
-  let result = await pumlx.methods
-    .claimApi(
-      claimer,
-      web3.utils.toWei("" + amount),
-      web3.utils.toWei("" + collect)
-    )
-    .send({
-      from: account
-    });
-
-  if (result.status === true) {
-    return { success: true, transactionHash: result.transactionHash };
-  }
-  return { success: false, error: "Failed to transfer pumlx!" };
-  // } catch (error) {
-  //   return { success: false, error: error };
-  // }
-};
-
-const balanceOfPuml = async () => {
-  const account = await getMainAccount("ETH");
-
-  const pumlContract = new web3.eth.Contract(
-    artifacts_erc20.abi,
-    secrets.address_puml
-  );
-
-  const balance = await pumlContract.methods
-    .balanceOfPuml(secrets.address_stake)
-    .call();
-  return { balance };
-};
-
-// const checkActualOffer = async (db_offer, db_token, cancel = false) => {
-// 	var chain_id = db_token.chain_id;
-// 	let owner = await puml.ownerOf(chain_id);
-// 	let offer = await engine.offers(chain_id);
-
-// 	if (owner != offer.creator) {
-// 		return false;
-// 	}
-// 	else {
-// 		if (offer.isAuction) {
-// 			let auction = await engine.methods.auction(offer.idAuction).call();
-
-// 			if (auction.currentBidOwner != db_offer.bids[0].user.wallet) {
-// 				await engine.methods.cancelAuctionOfToken(chain_id).call();
-
-// 				if (cancel) return false;
-// 			}
-// 		}
-// 	}
-
-// 	return true;
-// };
-
-// const getLastBid = async (chain_id) => {
-// 	const auction_id = await engine.methods.getAuctionId(chain_id).call();
-// 	const auction = await engine.methods.auctions(auction_id).call();
-// 	const last_bid = auction.currentBidOwner;
-// 	const last_bid_amount = Web3.utils.fromWei(auction.currentBidAmount, 'ether');
-
-// 	return [last_bid, Number(last_bid_amount)];
-// };
-
-// const checkOwner = async (chain_id) => {
-// 	let owner = await puml.methods.ownerOf(chain_id).call();
-// 	let offer = await engine.methods.offers(chain_id).call();
-
-// 	return (owner == offer.creator);
-// };
-
-// const checkBids = async (chain_id, last_bid, cancel = false) => {
-
-// 	let offer = await engine.methods.offers(chain_id).call();
-
-// 	if (offer.isAuction) {
-// 		let auction = await engine.methods.auction(offer.idAuction).call();
-
-// 		if (auction.currentBidOwner != last_bid) {
-// 			if (cancel) await engine.methods.cancelAuctionOfToken(chain_id).call();
-// 			return false;
-// 		}
-// 	}
-
-// 	return true;
-// };
-
-// const test = async () => {
-// 	// for (var a = 0;a < 10;a++) {
-// 	// 	console.log(123);
-// 	// 	console.log(await engine.methods.ahora().call());
-// 	// }
-// 	// const offer_id = 3;
-// 	// const offer = await engine.methods.offers(offer_id).call();
-// 	// console.log(offer);
-// 	// if (offer.isAuction) {
-// 	// 	const auction = await engine.methods.auctions(offer.idAuction).call();
-// 	// 	console.log(auction);
-// 	// }
-
-// 	// console.log(await engine.methods.getOfferId(1).call());
-
-// 	console.log(await getLastBid(5));
-// };
-
-// test();
 
 module.exports = {
   auctionSetWinner,
   getMainAccount,
-  // buyToken,
-  // bidToken,
-  // stakePuml,
-  // withdrawPuml,
-  approveNft,
-  getUserData,
-  collectPerUser,
-  claimPuml,
-  balanceOfPuml
-  // checkActualOffer,
-  // checkOwner,
-  // checkBids,
-  // getLastBid
+  claimPuml
 };
