@@ -478,15 +478,41 @@ const Controller = {
   },
 
   async buyToken(req, res) {
-    var { buyerAddress, sellerAddress, buyPrice } = helpers.parseFormData(
-      req.body
-    );
+    var { buyerAddress, sellerAddress, buyPrice, token } =
+      helpers.parseFormData(req.body);
     await Pumltransaction.create({
       seller: sellerAddress,
       buyer: buyerAddress,
-      fee: buyPrice * 0.027
+      fee: buyPrice * 0.027,
+      token: token
     });
     res.send({ success: true });
+  },
+
+  async transactionFee(req, res) {
+    var { date, address, ethDollarPrice } = helpers.parseFormData(req.body);
+    const transactions = await Pumltransaction.findAll({
+      where: { date_create: { $gte: date } }
+    });
+
+    let totalFeeAmount = 0;
+    let meFeeAmount = 0;
+
+    for (let i = 0; i < transactions.length; i++) {
+      if (seller === address || buyer === address) {
+        if (transactions[i].token === "PUMLx") {
+          meFeeAmount += transactions[i].fee * 0.05;
+        } else {
+          meFeeAmount += transactions[i].fee * parseFloat(ethDollarPrice);
+        }
+      }
+      if (transactions[i].token === "PUMLx") {
+        totalFeeAmount += transactions[i].fee * 0.05;
+      } else {
+        totalFeeAmount += transactions[i].fee * parseFloat(ethDollarPrice);
+      }
+    }
+    res.send({ meFeeAmount, totalFeeAmount });
   },
 
   async createApprovedToken(req, res) {

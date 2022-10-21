@@ -76,7 +76,8 @@ const closeExpiredOffers = async () => {
       await Pumltransaction.create({
         seller: creator.wallet,
         buyer: user_info.user,
-        fee: user_info.price * 0.027
+        fee: user_info.price * 0.027,
+        token: token.blockchain
       });
       await ApprovedTokens.update(
         {
