@@ -440,12 +440,10 @@ const Controller = {
         return res.status(404).send({ error: "Auction not found" });
 
       if (offer.offer_price > price)
-        return res
-          .status(422)
-          .send({
-            message: "Your price is less than the minimum offer price",
-            offer_price: offer.offer_price
-          });
+        return res.status(422).send({
+          message: "Your price is less than the minimum offer price",
+          offer_price: offer.offer_price
+        });
 
       var token = await Tokens.findOne({
         where: {
@@ -493,8 +491,6 @@ const Controller = {
         }
       );
 
-      res.send({ message: "Success buyed" });
-
       Activities.create({
         type: "purchased",
         userId: req.user.id,
@@ -504,6 +500,8 @@ const Controller = {
       });
 
       Controller.giveRoyalties(offer, token);
+
+      res.send({ message: "Success buyed" });
     } catch (error) {
       res.status(500).send({ error: "Server error" });
     }
